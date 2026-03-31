@@ -10,7 +10,7 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 20px;
+      padding: 30px;
     }
     h1 {
       color: #c0392b;
@@ -18,60 +18,59 @@
     }
     .board {
       position: relative;
-      width: 520px;
-      height: 520px;
+      width: 500px;
+      height: 500px;
       transform: rotate(45deg);
       background: #f9e79f;
-      border: 4px solid #333;
-      border-radius: 8px;
+      border: 4px solid #222;
+      border-radius: 6px;
     }
     .tile {
       position: absolute;
-      width: 52px;
-      height: 52px;
-      border: 1px solid #666;
+      width: 50px;
+      height: 50px;
+      border: 1px solid #444;
       background: #fff;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-size: 9px;
+      font-size: 8px;
       text-align: center;
       transform: rotate(-45deg);
       z-index: 1;
     }
-    .tile.go { background: #abebc6; font-weight: bold; font-size: 12px; }
+    .tile.go     { background: #abebc6; font-weight: bold; }
     .tile.chance { background: #fadbd8; font-weight: bold; }
-    .tile.jail { background: #d6eaf8; font-weight: bold; }
+    .tile.jail   { background: #d6eaf8; font-weight: bold; }
     .house {
-      font-size: 14px;
+      font-size: 12px;
       margin-top: 2px;
     }
     .piece {
       position: absolute;
-      width: 26px;
-      height: 26px;
-      font-size: 22px;
+      width: 24px;
+      height: 24px;
+      font-size: 20px;
       transition: all 0.7s ease;
       z-index: 10;
       transform: rotate(-45deg);
     }
     .dice {
-      font-size: 50px;
+      font-size: 46px;
       margin: 20px 0;
-      user-select: none;
     }
     .dice.shake {
       animation: shake 0.4s infinite;
     }
     @keyframes shake {
       0% { transform: rotate(0deg); }
-      25% { transform: rotate(10deg); }
-      50% { transform: rotate(-10deg); }
+      25% { transform: rotate(8deg); }
+      50% { transform: rotate(-8deg); }
       100% { transform: rotate(0deg); }
     }
     button {
-      padding: 10px 22px;
+      padding: 10px 20px;
       font-size: 16px;
       background: #c0392b;
       color: white;
@@ -93,288 +92,298 @@
       padding: 25px;
       border-radius: 10px;
       text-align: center;
-      width: 320px;
+      width: 300px;
     }
     .popup-buttons {
       display: flex;
-      gap:12px;
+      gap:10px;
       justify-content: center;
-      margin-top:18px;
+      margin-top:15px;
     }
   </style>
 </head>
+
 <body>
+  <h1>🎲 Monopoly - Diamond Board</h1>
 
-<h1>🎲 Monopoly - Diamond Board</h1>
+  <div class="board" id="board">
+    <!-- 下方边：GO → 右下方 -->
+    <div class="tile go"     style="left:225px; bottom:-25px;">GO</div>
+    <div class="tile"        style="left:275px; bottom:25px;">Mediterranean<br>$60</div>
+    <div class="tile"        style="left:325px; bottom:75px;">Baltic<br>$60</div>
+    <div class="tile"        style="left:375px; bottom:125px;">Reading RR<br>$200</div>
+    <div class="tile"        style="left:425px; bottom:175px;">Oriental<br>$100</div>
 
-<div class="board" id="board">
-  <div class="tile go"      style="left:234px; bottom:-26px;">GO</div>
-  <div class="tile"         style="left:286px; bottom:26px;">Mediterranean<br>$60</div>
-  <div class="tile"         style="left:338px; bottom:78px;">Baltic<br>$60</div>
-  <div class="tile"         style="left:390px; bottom:130px;">Reading RR<br>$200</div>
-  <div class="tile"         style="left:442px; bottom:182px;">Oriental<br>$100</div>
-  <div class="tile"         style="right:182px; top:442px;">Vermont<br>$100</div>
-  <div class="tile chance"  style="right:130px; top:390px;">CHANCE</div>
-  <div class="tile"         style="right:78px; top:338px;">Connecticut<br>$120</div>
-  <div class="tile"         style="right:26px; top:286px;">St. James<br>$140</div>
-  <div class="tile"         style="right:-26px; top:234px;">Virginia<br>$140</div>
-  <div class="tile"         style="right:234px; top:-26px;">States<br>$160</div>
-  <div class="tile"         style="right:182px; top:26px;">Pennsylvania<br>$180</div>
-  <div class="tile"         style="right:130px; top:78px;">B&O RR<br>$200</div>
-  <div class="tile"         style="right:78px; top:130px;">Kentucky<br>$180</div>
-  <div class="tile"         style="right:26px; top:182px;">Indiana<br>$180</div>
-  <div class="tile jail"    style="left:182px; top:234px;">JAIL</div>
-  <div class="tile"         style="left:130px; top:286px;">Illinois<br>$200</div>
-  <div class="tile"         style="left:78px; top:338px;">Atlantic<br>$220</div>
-  <div class="tile chance"  style="left:26px; top:390px;">CHANCE</div>
-  <div class="tile"         style="left:-26px; top:442px;">Ventnor<br>$220</div>
+    <!-- 右侧边：向上 -->
+    <div class="tile"        style="right:175px; top:425px;">Vermont<br>$100</div>
+    <div class="tile chance" style="right:125px; top:375px;">CHANCE</div>
+    <div class="tile"        style="right:75px; top:325px;">Connecticut<br>$120</div>
+    <div class="tile"        style="right:25px; top:275px;">St. James<br>$140</div>
+    <div class="tile"        style="right:-25px; top:225px;">Virginia<br>$140</div>
 
-  <div class="piece" id="p1" style="left:240px; bottom:-20px;">🐱</div>
-  <div class="piece" id="p2" style="left:240px; bottom:0px;">🐶</div>
-</div>
+    <!-- 上方边：向左 -->
+    <div class="tile"        style="right:225px; top:-25px;">States<br>$160</div>
+    <div class="tile"        style="right:175px; top:25px;">Pennsylvania<br>$180</div>
+    <div class="tile"        style="right:125px; top:75px;">B&O RR<br>$200</div>
+    <div class="tile"        style="right:75px; top:125px;">Kentucky<br>$180</div>
+    <div class="tile"        style="right:25px; top:175px;">Indiana<br>$180</div>
 
-<div class="dice" id="dice">🎲</div>
-<button id="rollBtn">Roll Dice</button>
-<p id="status">Player 1's turn</p>
-<p id="money">P1: $1500 | P2: $1500</p>
+    <!-- 左侧边：向下 -->
+    <div class="tile jail"   style="left:175px; top:225px;">JAIL</div>
+    <div class="tile"        style="left:125px; top:275px;">Illinois<br>$200</div>
+    <div class="tile"        style="left:75px; top:325px;">Atlantic<br>$220</div>
+    <div class="tile chance" style="left:25px; top:375px;">CHANCE</div>
+    <div class="tile"        style="left:-25px; top:425px;">Ventnor<br>$220</div>
 
-<div class="popup" id="buyPopup">
-  <div class="popup-inner">
-    <h3 id="buyTitle"></h3>
-    <p id="buyText"></p>
-    <div class="popup-buttons">
-      <button onclick="buyYes()">Yes</button>
-      <button onclick="closePopup()">No</button>
+    <!-- 棋子初始在GO正中央 -->
+    <div class="piece" id="p1" style="left:232px; bottom:-17px;">🐱</div>
+    <div class="piece" id="p2" style="left:232px; bottom:-3px;">🐶</div>
+  </div>
+
+  <div class="dice" id="dice">🎲</div>
+  <button id="rollBtn">Roll Dice</button>
+  <p id="status" style="font-size:18px; margin:6px 0;">Player 1's turn</p>
+  <p id="money" style="font-size:18px;">P1: $1500 | P2: $1500</p>
+
+  <div class="popup" id="buyPopup">
+    <div class="popup-inner">
+      <h3 id="buyTitle"></h3>
+      <p id="buyText"></p>
+      <div class="popup-buttons">
+        <button onclick="buyYes()">Yes</button>
+        <button onclick="closePopup()">No</button>
+      </div>
     </div>
   </div>
-</div>
 
-<div class="popup" id="buildPopup">
-  <div class="popup-inner">
-    <h3>Build House</h3>
-    <p id="buildText"></p>
-    <div class="popup-buttons">
-      <button onclick="buildYes()">Build</button>
-      <button onclick="closePopup()">Cancel</button>
+  <div class="popup" id="buildPopup">
+    <div class="popup-inner">
+      <h3>Build House</h3>
+      <p id="buildText"></p>
+      <div class="popup-buttons">
+        <button onclick="buildYes()">Build</button>
+        <button onclick="closePopup()">Cancel</button>
+      </div>
     </div>
   </div>
-</div>
 
-<div class="popup" id="chancePopup">
-  <div class="popup-inner">
-    <h3>Chance!</h3>
-    <p id="chanceText"></p>
-    <button onclick="closePopup()">OK</button>
+  <div class="popup" id="chancePopup">
+    <div class="popup-inner">
+      <h3>Chance!</h3>
+      <p id="chanceText"></p>
+      <button onclick="closePopup()">OK</button>
+    </div>
   </div>
-</div>
 
-<script>
-  const p1 = document.getElementById("p1");
-  const p2 = document.getElementById("p2");
-  const dice = document.getElementById("dice");
-  const rollBtn = document.getElementById("rollBtn");
-  const status = document.getElementById("status");
-  const money = document.getElementById("money");
-  const buyPopup = document.getElementById("buyPopup");
-  const buildPopup = document.getElementById("buildPopup");
-  const chancePopup = document.getElementById("chancePopup");
+  <script>
+    const p1 = document.getElementById("p1");
+    const p2 = document.getElementById("p2");
+    const dice = document.getElementById("dice");
+    const rollBtn = document.getElementById("rollBtn");
+    const status = document.getElementById("status");
+    const money = document.getElementById("money");
 
-  const players = [
-    { name:"Player1", money:1500, pos:0, elem:p1, owned:[], houses:Array(20).fill(0) },
-    { name:"Player2", money:1500, pos:0, elem:p2, owned:[], houses:Array(20).fill(0) }
-  ];
-  let current = 0;
+    const players = [
+      { name:"Player1", money:1500, pos:0, elem:p1, owned:[], houses:Array(20).fill(0) },
+      { name:"Player2", money:1500, pos:0, elem:p2, owned:[], houses:Array(20).fill(0) }
+    ];
+    let current = 0;
 
-  const positions = [
-    {left:240, bottom:-20},
-    {left:292, bottom:32}, {left:344, bottom:84}, {left:396, bottom:136}, {left:448, bottom:188},
-    {right:188, top:448}, {right:136, top:396}, {right:84, top:344}, {right:32, top:292}, {right:-20, top:240},
-    {right:240, top:-20}, {right:188, top:32}, {right:136, top:84}, {right:84, top:136}, {right:32, top:188},
-    {left:188, top:240}, {left:136, top:292}, {left:84, top:344}, {left:32, top:396}, {left:-20, top:448}
-  ];
+    // 👇 关键：每个格子坐标和格子位置一一严格对应
+    const positions = [
+      // 下方 0-4
+      { left:232, bottom:-17 },
+      { left:282, bottom:33 },
+      { left:332, bottom:83 },
+      { left:382, bottom:133 },
+      { left:432, bottom:183 },
+      // 右侧 5-9
+      { right:183, top:432 },
+      { right:133, top:382 },
+      { right:83, top:332 },
+      { right:33, top:282 },
+      { right:-17, top:232 },
+      // 上方 10-14
+      { right:232, top:-17 },
+      { right:183, top:33 },
+      { right:133, top:83 },
+      { right:83, top:133 },
+      { right:33, top:183 },
+      // 左侧 15-19
+      { left:183, top:232 },
+      { left:133, top:282 },
+      { left:83, top:332 },
+      { left:33, top:382 },
+      { left:-17, top:432 }
+    ];
 
-  const props = [
-    {name:"GO", price:0, rent:0, isChance:false},
-    {name:"Mediterranean", price:60, rent:10, isChance:false},
-    {name:"Baltic", price:60, rent:10, isChance:false},
-    {name:"Reading RR", price:200, rent:25, isChance:false},
-    {name:"Oriental", price:100, rent:15, isChance:false},
-    {name:"Vermont", price:100, rent:15, isChance:false},
-    {name:"Chance", price:0, rent:0, isChance:true},
-    {name:"Connecticut", price:120, rent:20, isChance:false},
-    {name:"St. James", price:140, rent:25, isChance:false},
-    {name:"Virginia", price:140, rent:25, isChance:false},
-    {name:"States", price:160, rent:30, isChance:false},
-    {name:"Pennsylvania", price:180, rent:35, isChance:false},
-    {name:"B&O RR", price:200, rent:25, isChance:false},
-    {name:"Kentucky", price:180, rent:35, isChance:false},
-    {name:"Indiana", price:180, rent:35, isChance:false},
-    {name:"JAIL", price:0, rent:0, isChance:false},
-    {name:"Illinois", price:200, rent:40, isChance:false},
-    {name:"Atlantic", price:220, rent:45, isChance:false},
-    {name:"Chance", price:0, rent:0, isChance:true},
-    {name:"Ventnor", price:220, rent:45, isChance:false}
-  ];
+    const props = [
+      {name:"GO", price:0, rent:0, isChance:false},
+      {name:"Mediterranean", price:60, rent:10, isChance:false},
+      {name:"Baltic", price:60, rent:10, isChance:false},
+      {name:"Reading RR", price:200, rent:25, isChance:false},
+      {name:"Oriental", price:100, rent:15, isChance:false},
+      {name:"Vermont", price:100, rent:15, isChance:false},
+      {name:"Chance", price:0, rent:0, isChance:true},
+      {name:"Connecticut", price:120, rent:20, isChance:false},
+      {name:"St. James", price:140, rent:25, isChance:false},
+      {name:"Virginia", price:140, rent:25, isChance:false},
+      {name:"States", price:160, rent:30, isChance:false},
+      {name:"Pennsylvania", price:180, rent:35, isChance:false},
+      {name:"B&O RR", price:200, rent:25, isChance:false},
+      {name:"Kentucky", price:180, rent:35, isChance:false},
+      {name:"Indiana", price:180, rent:35, isChance:false},
+      {name:"JAIL", price:0, rent:0, isChance:false},
+      {name:"Illinois", price:200, rent:40, isChance:false},
+      {name:"Atlantic", price:220, rent:45, isChance:false},
+      {name:"Chance", price:0, rent:0, isChance:true},
+      {name:"Ventnor", price:220, rent:45, isChance:false}
+    ];
 
-  const chanceList = [
-    "Gain $100", "Lose $50", "Collect $200", "Move back 2", "Roll again", "Pay $50"
-  ];
+    const chanceList = ["Gain $100","Lose $50","Collect $200","Move back 2","Roll again","Pay $50"];
+    const diceFaces = ["⚀","⚁","⚂","⚃","⚄","⚅"];
 
-  const diceFaces = ["⚀","⚁","⚂","⚃","⚄","⚅"];
+    function updateUI() {
+      money.textContent = `P1: $${players[0].money} | P2: $${players[1].money}`;
+      status.textContent = `${players[current].name}'s turn`;
+      updateHouses();
+    }
 
-  function updateUI() {
-    money.textContent = `P1: $${players[0].money} | P2: $${players[1].money}`;
-    status.textContent = `${players[current].name}'s turn`;
-    updateHouses();
-  }
-
-  function updateHouses() {
-    document.querySelectorAll(".house").forEach(e=>e.remove());
-    players.forEach((p, pi)=>{
-      p.owned.forEach(pos=>{
-        const cnt = p.houses[pos];
-        if (cnt <= 0) return;
-        const tile = document.querySelectorAll(".tile")[pos];
-        const h = document.createElement("div");
-        h.className = "house";
-        h.textContent = "🏠".repeat(cnt);
-        tile.appendChild(h);
+    function updateHouses() {
+      document.querySelectorAll(".house").forEach(e=>e.remove());
+      players.forEach(p => {
+        p.owned.forEach(pos => {
+          const cnt = p.houses[pos];
+          if (cnt < 1) return;
+          const tile = document.querySelectorAll(".tile")[pos];
+          const h = document.createElement("div");
+          h.className = "house";
+          h.textContent = "🏠".repeat(cnt);
+          tile.appendChild(h);
+        });
       });
-    });
-  }
-
-  function movePiece(p, steps) {
-    p.pos = (p.pos + steps) % 20;
-    const pos = positions[p.pos];
-    const e = p.elem;
-    Object.keys(pos).forEach(k=>e.style[k] = pos[k]+"px");
-  }
-
-  function roll() {
-    return Math.floor(Math.random()*6)+1;
-  }
-
-  function showBuy(prop) {
-    document.getElementById("buyTitle").textContent = `Buy ${prop.name}?`;
-    document.getElementById("buyText").textContent = `Price: $${prop.price}`;
-    buyPopup.style.display = "flex";
-  }
-
-  function showBuild(pos) {
-    const p = players[current];
-    const cnt = p.houses[pos];
-    if (cnt >=5) {
-      alert("Max 5 houses!");
-      nextTurn();
-      return;
     }
-    const cost = 50 + cnt*30;
-    document.getElementById("buildText").textContent = `Cost: $${cost}\nCurrent: ${cnt}/5 houses`;
-    buildPopup.style.display = "flex";
-    window.buildPos = pos;
-  }
 
-  function showChance() {
-    const msg = chanceList[Math.floor(Math.random()*chanceList.length)];
-    document.getElementById("chanceText").textContent = msg;
-    chancePopup.style.display = "flex";
-    const p = players[current];
-    if (msg.includes("Gain $100")) p.money +=100;
-    if (msg.includes("Lose $50") || msg.includes("Pay $50")) p.money -=50;
-    if (msg.includes("Collect $200")) p.money +=200;
-    if (msg.includes("Move back 2")) p.pos = Math.max(0, p.pos-2);
-    if (msg.includes("Roll again")) {
-      setTimeout(()=>{closePopup(); rollBtn.click();}, 700);
+    // 👇 移动函数完全重写，只根据 pos 取坐标，不乱算
+    function movePiece(player, steps) {
+      player.pos = (player.pos + steps) % 20;
+      const pos = positions[player.pos];
+      const el = player.elem;
+      // 清空所有位置再重新设置
+      el.style.left = el.style.right = el.style.top = el.style.bottom = "auto";
+      for (const key in pos) {
+        el.style[key] = pos[key] + "px";
+      }
     }
-    updateUI();
-  }
 
-  function closePopup() {
-    buyPopup.style.display = "none";
-    buildPopup.style.display = "none";
-    chancePopup.style.display = "none";
-  }
+    function roll() { return Math.floor(Math.random() * 6) + 1; }
 
-  function buyYes() {
-    const p = players[current];
-    const pos = p.pos;
-    const prop = props[pos];
-    if (p.money >= prop.price) {
-      p.money -= prop.price;
-      p.owned.push(pos);
+    function showBuy(prop) {
+      document.getElementById("buyTitle").textContent = `Buy ${prop.name}?`;
+      document.getElementById("buyText").textContent = `Price: $${prop.price}`;
+      buyPopup.style.display = "flex";
     }
-    closePopup();
-    nextTurn();
-  }
 
-  function buildYes() {
-    const p = players[current];
-    const pos = window.buildPos;
-    const cnt = p.houses[pos];
-    const cost = 50 + cnt*30;
-    if (p.money >= cost && cnt <5) {
-      p.money -= cost;
-      p.houses[pos]++;
-    }
-    closePopup();
-    nextTurn();
-  }
-
-  function nextTurn() {
-    if (players[current].money <0) {
-      alert(`${players[current].name} BANKRUPT!`);
-      rollBtn.disabled = true;
-      return;
-    }
-    current = 1 - current;
-    updateUI();
-  }
-
-  rollBtn.addEventListener("click", ()=>{
-    dice.classList.add("shake");
-    setTimeout(()=>{
-      dice.classList.remove("shake");
-      const steps = roll();
-      dice.textContent = diceFaces[steps-1];
-
+    function showBuild(pos) {
       const p = players[current];
-      movePiece(p, steps);
-      const pos = p.pos;
-      const prop = props[pos];
+      const cnt = p.houses[pos];
+      if (cnt >= 5) { alert("Max 5 houses!"); nextTurn(); return; }
+      const cost = 50 + cnt * 30;
+      document.getElementById("buildText").textContent = `Cost: $${cost}\nHouses: ${cnt}/5`;
+      buildPopup.style.display = "flex";
+      window.buildPos = pos;
+    }
 
-      if (prop.isChance) {
-        showChance();
+    function showChance() {
+      const msg = chanceList[Math.floor(Math.random() * chanceList.length)];
+      document.getElementById("chanceText").textContent = msg;
+      chancePopup.style.display = "flex";
+      const p = players[current];
+      if (msg.includes("100")) p.money += 100;
+      if (msg.includes("50")) p.money -= 50;
+      if (msg.includes("200")) p.money += 200;
+      if (msg.includes("back 2")) p.pos = Math.max(0, p.pos - 2);
+      if (msg.includes("Roll again")) {
+        setTimeout(() => { closePopup(); rollBtn.click(); }, 700);
+      }
+      updateUI();
+    }
+
+    function closePopup() {
+      buyPopup.style.display = "none";
+      buildPopup.style.display = "none";
+      chancePopup.style.display = "none";
+    }
+
+    function buyYes() {
+      const p = players[current];
+      const prop = props[p.pos];
+      if (p.money >= prop.price) {
+        p.money -= prop.price;
+        p.owned.push(p.pos);
+      }
+      closePopup();
+      nextTurn();
+    }
+
+    function buildYes() {
+      const p = players[current];
+      const pos = window.buildPos;
+      const cnt = p.houses[pos];
+      const cost = 50 + cnt * 30;
+      if (p.money >= cost && cnt < 5) {
+        p.money -= cost;
+        p.houses[pos]++;
+      }
+      closePopup();
+      nextTurn();
+    }
+
+    function nextTurn() {
+      if (players[current].money < 0) {
+        alert(players[current].name + " BANKRUPT!");
+        rollBtn.disabled = true;
         return;
       }
+      current = 1 - current;
+      updateUI();
+    }
 
-      if (p.owned.includes(pos)) {
-        showBuild(pos);
-        return;
-      }
+    rollBtn.onclick = () => {
+      dice.classList.add("shake");
+      setTimeout(() => {
+        dice.classList.remove("shake");
+        const steps = roll();
+        dice.textContent = diceFaces[steps - 1];
 
-      let owner = -1;
-      if (players[0].owned.includes(pos)) owner=0;
-      if (players[1].owned.includes(pos)) owner=1;
+        const p = players[current];
+        movePiece(p, steps);
+        const pos = p.pos;
+        const prop = props[pos];
 
-      if (owner !== -1 && owner !== current) {
-        const rent = props[pos].rent * (1 + players[owner].houses[pos]*0.8);
-        alert(`Pay rent $${Math.floor(rent)} to ${players[owner].name}`);
-        p.money -= rent;
-        players[owner].money += rent;
-        updateUI();
-        nextTurn();
-        return;
-      }
+        if (prop.isChance) { showChance(); return; }
+        if (p.owned.includes(pos)) { showBuild(pos); return; }
 
-      if (prop.price >0) {
-        showBuy(prop);
-      } else {
-        nextTurn();
-      }
-    }, 500);
-  });
+        let owner = -1;
+        if (players[0].owned.includes(pos)) owner = 0;
+        if (players[1].owned.includes(pos)) owner = 1;
 
-  updateUI();
-</script>
+        if (owner !== -1 && owner !== current) {
+          const rent = prop.rent * (1 + players[owner].houses[pos] * 0.8);
+          alert(`Pay rent $${Math.floor(rent)} to ${players[owner].name}`);
+          p.money -= rent;
+          players[owner].money += rent;
+          updateUI();
+          nextTurn();
+          return;
+        }
+
+        if (prop.price > 0) showBuy(prop);
+        else nextTurn();
+      }, 500);
+    };
+
+    updateUI();
+  </script>
 </body>
 </html>
