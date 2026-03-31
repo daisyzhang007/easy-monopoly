@@ -2,51 +2,78 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Monopoly - Chance Fixed Final</title>
+  <title>Square Monopoly - Final Debugged</title>
   <style>
-    * { box-sizing: border-box; margin:0; padding:0; font-family: 'Segoe UI', sans-serif; }
-    body { background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; }
-    .board { position: relative; width: 640px; height: 640px; background: #fff; border: 8px solid #2c3e50; box-shadow: 0 15px 35px rgba(0,0,0,0.3); }
-    .center-hub { position: absolute; top: 80px; left: 80px; width: 464px; height: 464px; background: #f8f9fa; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px dashed #bdc3c7; z-index: 10; }
-    .tile { position: absolute; width: 80px; height: 80px; border: 1px solid #bdc3c7; display: flex; flex-direction: column; background: white; font-size: 10px; font-weight: bold; text-align: center; }
+    * { box-sizing: border-box; margin:0; padding:0; font-family: 'Segoe UI', Arial, sans-serif; }
+    body { background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+    
+    .board { position: relative; width: 640px; height: 640px; background: #fff; border: 8px solid #2c3e50; box-shadow: 0 15px 40px rgba(0,0,0,0.4); }
+    
+    .center-hub { 
+      position: absolute; top: 80px; left: 80px; width: 464px; height: 464px; 
+      background: #fdfdfd; display: flex; flex-direction: column; align-items: center; 
+      justify-content: center; border: 2px dashed #ccc; z-index: 5;
+    }
+
+    .tile { 
+      position: absolute; width: 80px; height: 80px; border: 1px solid #bdc3c7; 
+      display: flex; flex-direction: column; background: white; text-align: center; font-weight: bold;
+    }
     .owner-bar { height: 18px; width: 100%; border-bottom: 1px solid #bdc3c7; background: #eee; }
-    .tile-info { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 2px; }
-    .tile.go { background: #2ecc71; color: white; font-size: 14px; }
-    .tile.chance { background: #f1c40f; }
-    .tile.jail { background: #e74c3c; color: white; }
-    .piece { position: absolute; width: 36px; height: 36px; font-size: 28px; display: flex; align-items: center; justify-content: center; transition: all 0.4s ease-in-out; z-index: 100; pointer-events: none; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
-    .dice-val { font-size: 120px; line-height: 1; color: #2c3e50; margin-bottom: 10px; }
-    .money-display { display: flex; gap: 30px; margin-top: 20px; font-size: 22px; font-weight: 900; }
-    .p1-ui { color: #3498db; text-align: center; }
-    .p2-ui { color: #e74c3c; text-align: center; }
-    .status-text { margin-top: 15px; font-size: 18px; font-weight: bold; }
-    button { background: #2c3e50; color: white; border: none; padding: 15px 45px; font-size: 20px; border-radius: 50px; cursor: pointer; }
-    button:disabled { background: #95a5a6; }
-    .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
-    .modal-content { background: white; padding: 30px; border-radius: 15px; text-align: center; max-width: 320px; }
-    .modal-btns { margin-top: 20px; display: flex; gap: 10px; justify-content: center; }
+    .tile-info { flex: 1; display: flex; flex-direction: column; justify-content: center; font-size: 10px; padding: 2px; }
+    
+    /* 特殊格颜色 */
+    .tile.go { background: #2ecc71 !important; color: white; }
+    .tile.chance { background: #f1c40f !important; }
+    .tile.jail { background: #e74c3c !important; color: white; }
+
+    .piece { 
+      position: absolute; width: 40px; height: 40px; font-size: 30px; 
+      display: flex; align-items: center; justify-content: center; 
+      transition: all 0.3s ease-out; z-index: 100; pointer-events: none;
+      filter: drop-shadow(0 2px 5px rgba(0,0,0,0.4));
+    }
+
+    .dice-val { font-size: 130px; line-height: 1; color: #2c3e50; margin-bottom: 5px; user-select: none; }
+    .money-display { display: flex; gap: 40px; margin-top: 15px; font-size: 24px; font-weight: 900; }
+    .p1-ui { color: #3498db; } .p2-ui { color: #e74c3c; }
+    
+    button { 
+      background: #2c3e50; color: white; border: none; padding: 15px 50px; 
+      font-size: 22px; border-radius: 50px; cursor: pointer; box-shadow: 0 4px 0 #1a252f;
+    }
+    button:active { transform: translateY(2px); box-shadow: 0 2px 0 #1a252f; }
+    button:disabled { background: #95a5a6; box-shadow: none; cursor: not-allowed; }
+
+    .modal { 
+      display: none; position: fixed; top:0; left:0; width:100%; height:100%; 
+      background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; 
+    }
+    .modal-content { background: white; padding: 40px; border-radius: 20px; text-align: center; max-width: 350px; }
+    .modal-btns { margin-top: 25px; }
   </style>
 </head>
 <body>
 
   <div class="board" id="board">
     <div class="center-hub">
-      <div class="status-text" id="status">P1's Turn</div>
+      <div id="status" style="font-size: 20px; font-weight: bold; margin-bottom: 5px;">P1's Turn</div>
       <div class="dice-val" id="dice">⚀</div>
       <button id="rollBtn">ROLL DICE</button>
       <div class="money-display">
-        <div class="p1-ui">🐱 P1<br>$<span id="m1">2000</span></div>
-        <div class="p2-ui">🐶 P2<br>$<span id="m2">2000</span></div>
+        <div class="p1-ui">🐱 $<span id="m1">2000</span></div>
+        <div class="p2-ui">🐶 $<span id="m2">2000</span></div>
       </div>
     </div>
-    <div class="piece" id="p1-piece">🐱</div>
-    <div class="piece" id="p2-piece">🐶</div>
+    
+    <div class="piece" id="p1-piece" style="transition: all 0.4s;">🐱</div>
+    <div class="piece" id="p2-piece" style="transition: all 0.4s;">🐶</div>
   </div>
 
   <div class="modal" id="modal">
     <div class="modal-content">
-      <h2 id="modalTitle"></h2>
-      <p id="modalText" style="margin: 15px 0; font-size: 18px;"></p>
+      <h2 id="modalTitle" style="color:#2c3e50"></h2>
+      <p id="modalText" style="margin: 20px 0; font-size: 18px; color:#34495e"></p>
       <div class="modal-btns" id="modalBtns"></div>
     </div>
   </div>
@@ -54,13 +81,17 @@
 <script>
   const totalTiles = 28;
   const propertyData = [
-    {name:"GO!", type:"go"}, {name:"Med. Ave", price:60, rent:10}, {name:"Baltic", price:60, rent:10}, {name:"CHANCE", type:"chance"},
+    {name:"GO!", type:"go"}, // 0
+    {name:"Med. Ave", price:60, rent:10}, {name:"Baltic", price:60, rent:10}, {name:"CHANCE", type:"chance"},
     {name:"Oriental", price:100, rent:15}, {name:"Vermont", price:100, rent:15}, {name:"Conn. Ave", price:120, rent:20},
-    {name:"JAIL", type:"jail"}, {name:"St. James", price:140, rent:25}, {name:"Electric", price:150, rent:30}, {name:"Virginia", price:140, rent:25},
+    {name:"JAIL", type:"jail"}, // 7
+    {name:"St. James", price:140, rent:25}, {name:"Electric", price:150, rent:30}, {name:"Virginia", price:140, rent:25},
     {name:"Penn RR", price:200, rent:25}, {name:"States Ave", price:160, rent:30}, {name:"Virginia", price:160, rent:30},
-    {name:"PARKING", type:"special"}, {name:"Kentucky", price:180, rent:35}, {name:"CHANCE", type:"chance"}, {name:"Indiana", price:180, rent:35},
+    {name:"PARKING", type:"special"}, // 14
+    {name:"Kentucky", price:180, rent:35}, {name:"CHANCE", type:"chance"}, {name:"Indiana", price:180, rent:35},
     {name:"Illinois", price:200, rent:40}, {name:"B&O RR", price:200, rent:25}, {name:"Atlantic", price:220, rent:45},
-    {name:"GO TO JAIL", type:"jail"}, {name:"Ventnor", price:220, rent:45}, {name:"Water Co.", price:150, rent:30}, {name:"Marvin", price:240, rent:50},
+    {name:"GO TO JAIL", type:"jail"}, // 21
+    {name:"Ventnor", price:220, rent:45}, {name:"Water Co.", price:150, rent:30}, {name:"Marvin", price:240, rent:50},
     {name:"Short Line", price:200, rent:25}, {name:"Pacific", price:260, rent:55}, {name:"Boardwalk", price:400, rent:100}
   ];
 
@@ -71,6 +102,7 @@
   let turn = 0;
   const tileCoords = [];
 
+  // 初始化棋盘
   function initBoard() {
     const board = document.getElementById('board');
     for(let i=0; i<totalTiles; i++) {
@@ -79,6 +111,7 @@
       else if(i <= 13) { x = 0; y = 560 - ((i-7) * 80); }
       else if(i <= 21) { x = (i-14) * 80; y = 0; }
       else { x = 560; y = (i-21) * 80; }
+      
       tileCoords.push({x, y});
       const t = document.createElement('div');
       t.className = `tile ${propertyData[i].type || ''}`;
@@ -89,15 +122,18 @@
     }
   }
 
-  function placePiece(pIdx) {
-    const coord = tileCoords[players[pIdx].pos];
-    const offset = pIdx === 0 ? 10 : 35;
-    players[pIdx].piece.style.left = (coord.x + offset) + 'px';
-    players[pIdx].piece.style.top = (coord.y + 20) + 'px';
+  function updatePiece(pIdx) {
+    const p = players[pIdx];
+    const offset = pIdx === 0 ? 5 : 35;
+    p.piece.style.left = (tileCoords[p.pos].x + offset) + 'px';
+    p.piece.style.top = (tileCoords[p.pos].y + 20) + 'px';
   }
 
+  // 掷骰子
   async function handleRoll() {
-    document.getElementById('rollBtn').disabled = true;
+    const btn = document.getElementById('rollBtn');
+    btn.disabled = true;
+    
     const steps = Math.floor(Math.random() * 6) + 1;
     document.getElementById('dice').innerText = ['⚀','⚁','⚂','⚃','⚄','⚅'][steps-1];
     
@@ -105,59 +141,69 @@
     for(let i=0; i<steps; i++) {
       p.pos = (p.pos + 1) % totalTiles;
       if(p.pos === 0) { p.money += 200; updateUI(); }
-      placePiece(turn);
-      await new Promise(r => setTimeout(r, 200));
+      updatePiece(turn);
+      await new Promise(r => setTimeout(r, 250));
     }
-    checkTileAction();
+    
+    // 关键：在这里停住，进入格子逻辑判断
+    resolveTileAction();
   }
 
-  function checkTileAction() {
+  function resolveTileAction() {
     const p = players[turn];
     const tile = propertyData[p.pos];
     const owner = players.find(pl => pl.owned.includes(p.pos));
 
+    console.log("Stopped at:", tile.name, "Type:", tile.type); // Debug
+
+    // 1. Chance 逻辑
     if (tile.type === "chance") {
-      triggerChance(p);
-    } else if (tile.name === "GO TO JAIL") {
-      p.pos = 7; placePiece(turn);
-      showModal("Police!", "Go directly to JAIL!", [{t:"Dismissed", c: nextTurn}]);
-    } else if (owner && owner.id !== p.id) {
-      p.money -= tile.rent; owner.money += tile.rent;
-      showModal("Rent!", `Paid $${tile.rent} to ${owner.name}`, [{t:"OK", c: nextTurn}]);
+      const events = [
+        { title: "Lottery!", text: "You won a minor lottery! Get $200", action: () => { p.money += 200; } },
+        { title: "Tax Bill", text: "Pay unexpected tax of $150", action: () => { p.money -= 150; } },
+        { title: "Bonus", text: "Inherit $300 from a relative!", action: () => { p.money += 300; } },
+        { title: "Speeding", text: "Traffic fine! Pay $100", action: () => { p.money -= 100; } }
+      ];
+      const ev = events[Math.floor(Math.random() * events.length)];
+      showModal("CHANCE: " + ev.title, ev.text, [{t: "Collect/Pay", c: () => { ev.action(); updateUI(); nextTurn(); }}]);
+      return; // 阻止自动进入下一回合
+    }
+
+    // 2. Go to Jail 逻辑
+    if (tile.name === "GO TO JAIL") {
+      showModal("ARRESTED!", "Go directly to JAIL! (Index 7)", [{t: "Fine...", c: () => { 
+        p.pos = 7; 
+        updatePiece(turn); 
+        nextTurn(); 
+      }}]);
+      return;
+    }
+
+    // 3. 租金与购买逻辑
+    if (owner && owner.id !== p.id) {
+      showModal("RENT DUE!", `Pay $${tile.rent} to ${owner.name}`, [{t: "Pay Rent", c: () => { 
+        p.money -= tile.rent; 
+        owner.money += tile.rent; 
+        updateUI(); 
+        nextTurn(); 
+      }}]);
     } else if (tile.price > 0 && !owner) {
-      showModal(`Buy ${tile.name}?`, `Cost: $${tile.price}`, [
-        {t:"Buy", c: () => {
+      showModal(`BUY ${tile.name}?`, `Price: $${tile.price}`, [
+        {t: "Buy", c: () => {
           if(p.money >= tile.price) {
-            p.money -= tile.price; p.owned.push(p.pos);
+            p.money -= tile.price; 
+            p.owned.push(p.pos);
             document.getElementById(`bar-${p.pos}`).style.background = p.color;
+            updateUI();
           }
           nextTurn();
         }},
-        {t:"Skip", c: nextTurn}
+        {t: "Skip", c: nextTurn}
       ]);
     } else {
+      // 安全格或自己地
       nextTurn();
     }
-    updateUI();
-  }
-
-  function triggerChance(p) {
-    const events = [
-      { n: "Tax Refund", m: 200, d: "IRS made a mistake. Get $200!" },
-      { n: "Hospital Fees", m: -150, d: "Unexpected medical bill. Pay $150." },
-      { n: "Advance to GO", m: 0, d: "Move to GO and collect $200.", a: () => { p.pos = 0; p.money += 200; } },
-      { n: "Backtrack", m: 0, d: "Go back 3 spaces.", a: () => { p.pos = (p.pos - 3 + totalTiles) % totalTiles; } },
-      { n: "Bank Dividends", m: 100, d: "Bank pays you dividends of $100." }
-    ];
-    const ev = events[Math.floor(Math.random() * events.length)];
-    
-    showModal("CHANCE: " + ev.n, ev.d, [{t:"Accept", c: () => {
-      if(ev.m !== 0) p.money += ev.m;
-      if(ev.a) ev.a();
-      placePiece(turn);
-      updateUI();
-      nextTurn();
-    }}]);
   }
 
   function showModal(title, text, btns) {
@@ -166,9 +212,12 @@
     document.getElementById('modalText').innerText = text;
     const container = document.getElementById('modalBtns');
     container.innerHTML = '';
+    
     btns.forEach(b => {
       const el = document.createElement('button');
-      el.innerText = b.t; el.style.fontSize = "14px";
+      el.innerText = b.t;
+      el.style.margin = "0 10px";
+      el.style.fontSize = "16px";
       el.onclick = () => { m.style.display = 'none'; b.c(); };
       container.appendChild(el);
     });
@@ -178,8 +227,9 @@
   function updateUI() {
     document.getElementById('m1').innerText = players[0].money;
     document.getElementById('m2').innerText = players[1].money;
-    document.getElementById('status').innerText = `P${turn+1}'s Turn`;
-    document.getElementById('status').style.color = players[turn].color;
+    const st = document.getElementById('status');
+    st.innerText = `P${turn+1}'s Turn`;
+    st.style.color = players[turn].color;
   }
 
   function nextTurn() {
@@ -188,7 +238,10 @@
     document.getElementById('rollBtn').disabled = false;
   }
 
-  initBoard(); placePiece(0); placePiece(1); updateUI();
+  initBoard();
+  updatePiece(0);
+  updatePiece(1);
+  updateUI();
   document.getElementById('rollBtn').onclick = handleRoll;
 </script>
 </body>
