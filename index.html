@@ -2,294 +2,330 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Monopoly Diamond - Refined</title>
+  <title>Monopoly Square Pro</title>
   <style>
-    * { box-sizing: border-box; margin:0; padding:0; font-family: 'Segoe UI', Arial; }
+    * { box-sizing: border-box; margin:0; padding:0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body {
-      background: #fdf2e9;
+      background: #f0f2f5;
       display: flex;
       flex-direction: column;
       align-items: center;
       padding: 20px;
-      overflow: hidden;
     }
-    h1 { color: #2c3e50; margin-bottom: 20px; text-shadow: 1px 1px 2px rgba(0,0,0,0.1); }
-    
-    /* 游戏容器 */
-    .game-container {
+    h1 { color: #2c3e50; margin-bottom: 15px; }
+
+    /* 棋盘容器 */
+    .game-viewport {
       position: relative;
-      width: 600px;
-      height: 600px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      width: 640px;
+      height: 640px;
+      background: #fff;
+      border: 10px solid #34495e;
+      border-radius: 4px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
     }
 
-    /* 菱形棋盘主体 */
-    .board {
-      position: relative;
-      width: 440px; /* 5个格子 * 80px + 边框 */
-      height: 440px;
-      background: #ebedef;
-      border: 8px solid #2c3e50;
-      transform: rotate(45deg); /* 核心：菱形旋转 */
-      box-shadow: 0 15px 35px rgba(0,0,0,0.2);
-    }
-
-    /* 格子样式 */
+    /* 格子 */
     .tile {
       position: absolute;
       width: 80px;
       height: 80px;
       border: 1px solid #bdc3c7;
-      background: white;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      background: white;
       font-size: 10px;
-      font-weight: bold;
       text-align: center;
-      /* 这里让文字转回来，保持水平 */
-      transform: rotate(-45deg); 
     }
 
-    /* 棋子 */
+    /* 地产顶部的颜色条 */
+    .owner-bar {
+      height: 18px;
+      width: 100%;
+      background: #ecf0f1; /* 初始无色 */
+      border-bottom: 1px solid #bdc3c7;
+      transition: background 0.3s;
+    }
+
+    .tile-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 2px;
+      font-weight: bold;
+    }
+
+    /* 特殊格子风格 */
+    .tile.special { background: #ecf0f1; }
+    .tile.go { background: #2ecc71; color: white; }
+    .tile.chance { background: #f1c40f; }
+
+    /* 棋子样式 */
     .piece {
       position: absolute;
-      width: 34px;
-      height: 34px;
-      font-size: 26px;
+      width: 36px;
+      height: 36px;
+      font-size: 28px;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.5s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
       z-index: 100;
       pointer-events: none;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
     }
 
-    /* 特殊格子颜色 */
-    .tile.go { background: #2ecc71; color: white; }
-    .tile.chance { background: #f1c40f; }
-    .tile.jail { background: #e74c3c; color: white; }
-    
-    .house-indicator { font-size: 14px; color: #d35400; margin-top: 2px; }
-
     /* 控制面板 */
-    .controls { margin-top: 40px; text-align: center; z-index: 200; }
-    .dice { font-size: 60px; margin-bottom: 10px; height: 70px; }
+    .dashboard {
+      margin-top: 30px;
+      text-align: center;
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      width: 400px;
+    }
+
+    .dice-display {
+      font-size: 120px; /* 骰子变大 */
+      line-height: 1;
+      margin-bottom: 10px;
+      color: #34495e;
+      cursor: default;
+      user-select: none;
+    }
+
+    .money-row {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 15px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .p1-box { color: #3498db; }
+    .p2-box { color: #e74c3c; }
+
     button {
-      padding: 12px 30px;
-      font-size: 18px;
       background: #2c3e50;
       color: white;
       border: none;
+      padding: 12px 40px;
+      font-size: 18px;
       border-radius: 50px;
       cursor: pointer;
-      transition: transform 0.1s;
+      transition: 0.2s;
     }
-    button:active { transform: scale(0.95); }
-    button:disabled { background: #95a5a6; }
+    button:hover { background: #34495e; transform: translateY(-2px); }
+    button:disabled { background: #95a5a6; cursor: not-allowed; }
 
     /* 弹窗 */
-    .popup {
+    .modal {
       display: none; position: fixed; top:0; left:0; width:100%; height:100%;
       background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center;
     }
-    .popup-inner { background: white; padding: 30px; border-radius: 15px; text-align: center; min-width: 250px; }
-    .btn-group { display: flex; gap: 10px; justify-content: center; margin-top: 20px; }
+    .modal-content { background: white; padding: 30px; border-radius: 15px; text-align: center; }
+    .modal-btns { margin-top: 20px; display: flex; gap: 10px; justify-content: center; }
   </style>
 </head>
 <body>
 
-  <h1>🎲 MONOPOLY DIAMOND</h1>
+  <h1>🎲 SQUARE MONOPOLY</h1>
 
-  <div class="game-container">
-    <div class="board" id="board">
-      </div>
-    <div class="piece" id="p1">🐱</div>
-    <div class="piece" id="p2">🐶</div>
-  </div>
+  <div class="game-viewport" id="board">
+    </div>
 
-  <div class="controls">
-    <div class="dice" id="dice">⚀</div>
-    <button id="rollBtn">Roll Dice</button>
-    <p id="status" style="margin-top:10px; font-weight:bold;">Player 1's turn</p>
-    <p id="money">P1: $1500 | P2: $1500</p>
-  </div>
-
-  <div class="popup" id="gamePopup">
-    <div class="popup-inner">
-      <h2 id="popupTitle">Property</h2>
-      <p id="popupText">Description</p>
-      <div class="btn-group" id="popupBtns"></div>
+  <div class="dashboard">
+    <div class="dice-display" id="dice">⚀</div>
+    <button id="rollBtn">ROLL DICE</button>
+    <div id="turnNotice" style="margin-top:10px; font-weight:bold;">Player 1's Turn</div>
+    <div class="money-row">
+      <div class="p1-box">🐱 P1: $<span id="m1">2000</span></div>
+      <div class="p2-box">🐶 P2: $<span id="m2">2000</span></div>
     </div>
   </div>
 
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <h2 id="modalTitle"></h2>
+      <p id="modalText"></p>
+      <div class="modal-btns" id="modalBtns"></div>
+    </div>
+  </div>
+
+  <div class="piece" id="p1-piece">🐱</div>
+  <div class="piece" id="p2-piece">🐶</div>
+
 <script>
-  const boardElem = document.getElementById('board');
-  const tileSize = 80; // 格子大小像素
-  const sideCount = 5; // 每条边5个格子
-  
-  // 属性定义
-  const props = [
+  const boardSize = 640;
+  const tileSize = 80;
+  const totalTiles = 28; // 8x8 正方形周长 (8*4 - 4)
+
+  const propertyData = [
     {name:"GO", price:0, rent:0, type:"go"},
-    {name:"Med.", price:60, rent:10}, {name:"Baltic", price:60, rent:10},
-    {name:"Express", price:200, rent:25}, {name:"Oriental", price:100, rent:15},
-    {name:"Vermont", price:100, rent:15}, {name:"Chance", price:0, rent:0, type:"chance"},
-    {name:"Conn.", price:120, rent:20}, {name:"St. James", price:140, rent:25},
-    {name:"Virginia", price:140, rent:25}, {name:"States", price:160, rent:30},
-    {name:"Penn.", price:180, rent:35}, {name:"B&O RR", price:200, rent:25},
-    {name:"Kentucky", price:180, rent:35}, {name:"Indiana", price:180, rent:35},
-    {name:"JAIL", price:0, rent:0, type:"jail"}, {name:"Illinois", price:200, rent:40},
-    {name:"Atlantic", price:220, rent:45}, {name:"Chance", price:0, rent:0, type:"chance"},
-    {name:"Ventnor", price:220, rent:45}
+    {name:"Med. Ave", price:60, rent:10}, {name:"Baltic", price:60, rent:10}, {name:"Income Tax", price:0, rent:200, type:"tax"},
+    {name:"Oriental", price:100, rent:15}, {name:"Vermont", price:100, rent:15}, {name:"Conn. Ave", price:120, rent:20},
+    {name:"JAIL", price:0, rent:0, type:"special"},
+    {name:"St. James", price:140, rent:25}, {name:"Electric", price:150, rent:30}, {name:"Virginia", price:140, rent:25},
+    {name:"Penn RR", price:200, rent:25}, {name:"States Ave", price:160, rent:30}, {name:"Virginia", price:160, rent:30},
+    {name:"PARKING", price:0, rent:0, type:"special"},
+    {name:"Kentucky", price:180, rent:35}, {name:"Chance", price:0, rent:0, type:"chance"}, {name:"Indiana", price:180, rent:35},
+    {name:"Illinois", price:200, rent:40}, {name:"B&O RR", price:200, rent:25}, {name:"Atlantic", price:220, rent:45},
+    {name:"GO TO JAIL", price:0, rent:0, type:"special"},
+    {name:"Ventnor", price:220, rent:45}, {name:"Water Co.", price:150, rent:30}, {name:"Marvin", price:240, rent:50},
+    {name:"Short Line", price:200, rent:25}, {name:"Pacific", price:260, rent:55}, {name:"Boardwalk", price:400, rent:100}
   ];
 
-  // 1. 自动生成格子并计算精确物理坐标
-  const tileCoords = []; 
-  function initBoard() {
-    // 四个顶点的逻辑位置
-    // 边0: (i, 4), 边1: (4, 4-i), 边2: (4-i, 0), 边3: (0, i)
-    for(let i=0; i<20; i++) {
+  const board = document.getElementById('board');
+  const tileElements = [];
+
+  // 1. 渲染棋盘格子 (顺时针，从右下角 GO 开始)
+  function setupBoard() {
+    for(let i=0; i<totalTiles; i++) {
+      const tile = document.createElement('div');
+      tile.className = `tile ${propertyData[i].type || ''}`;
+      
       let x, y;
-      if(i < 5) { x = i; y = 4; }
-      else if(i < 10) { x = 4; y = 4-(i-5); }
-      else if(i < 15) { x = 4-(i-10); y = 0; }
-      else { x = 0; y = i-15; }
+      // 顺时针逻辑计算
+      if(i < 8) { // 下边: 右下 -> 左下
+        x = boardSize - (i + 1) * tileSize;
+        y = boardSize - tileSize;
+      } else if(i < 14) { // 左边: 左下 -> 左上
+        x = 0;
+        y = boardSize - (i - 6) * tileSize;
+      } else if(i < 22) { // 上边: 左上 -> 右上
+        x = (i - 14) * tileSize;
+        y = 0;
+      } else { // 右边: 右上 -> 右下
+        x = boardSize - tileSize;
+        y = (i - 20) * tileSize;
+      }
 
-      // 创建DOM
-      const t = document.createElement('div');
-      t.className = `tile ${props[i].type || ''}`;
-      t.style.left = (x * tileSize) + 'px';
-      t.style.top = (y * tileSize) + 'px';
-      t.innerHTML = `<div>${props[i].name}</div>${props[i].price ? '<div>$'+props[i].price+'</div>' : ''}<div class="h-idx" id="h-${i}"></div>`;
-      boardElem.appendChild(t);
-
-      // 核心算法：将旋转45度后的局部坐标转换为全局居中坐标
-      // 这里的数学公式处理了棋盘旋转对坐标的影响
-      const angle = 45 * Math.PI / 180;
-      const boardSize = 400; // 5格*80px
-      const centerX = 300, centerY = 300; // 容器中心
+      tile.style.left = x + 'px';
+      tile.style.top = y + 'px';
       
-      const relX = (x * tileSize + tileSize/2) - boardSize/2;
-      const relY = (y * tileSize + tileSize/2) - boardSize/2;
+      const bar = document.createElement('div');
+      bar.className = 'owner-bar';
+      bar.id = `bar-${i}`;
       
-      // 旋转矩阵变换
-      const rotatedX = relX * Math.cos(angle) - relY * Math.sin(angle);
-      const rotatedY = relX * Math.sin(angle) + relY * Math.cos(angle);
+      const info = document.createElement('div');
+      info.className = 'tile-info';
+      info.innerHTML = `<span>${propertyData[i].name}</span>${propertyData[i].price ? '<br>$'+propertyData[i].price : ''}`;
       
-      tileCoords.push({ x: centerX + rotatedX, y: centerY + rotatedY });
+      tile.appendChild(bar);
+      tile.appendChild(info);
+      board.appendChild(tile);
+      tileElements.push({x: x + tileSize/2, y: y + tileSize/2});
     }
   }
 
-  // 2. 游戏状态
+  // 2. 玩家逻辑
   const players = [
-    { id:0, name:"P1", money:1500, pos:0, elem:document.getElementById('p1'), owned:[], houses:{} },
-    { id:1, name:"P2", money:1500, pos:0, elem:document.getElementById('p2'), owned:[], houses:{} }
+    {id:0, name:"Player 1", money:2000, pos:0, piece:document.getElementById('p1-piece'), color:"#3498db", owned:[]},
+    {id:1, name:"Player 2", money:2000, pos:0, piece:document.getElementById('p2-piece'), color:"#e74c3c", owned:[]}
   ];
   let turn = 0;
 
-  function updatePlayerPos(pIdx) {
-    const p = players[pIdx];
-    const coords = tileCoords[p.pos];
-    // 加上偏移防止棋子重叠
-    const offset = pIdx === 0 ? -12 : 12;
-    p.elem.style.left = (coords.x + offset - 17) + 'px';
-    p.elem.style.top = (coords.y - 17) + 'px';
+  function updateDisplay() {
+    document.getElementById('m1').innerText = players[0].money;
+    document.getElementById('m2').innerText = players[1].money;
+    document.getElementById('turnNotice').innerText = `${players[turn].name}'s Turn`;
+    document.getElementById('turnNotice').style.color = players[turn].color;
   }
 
-  // 3. 游戏逻辑
-  function rollDice() {
+  function movePiece(pIdx) {
+    const p = players[pIdx];
+    const coords = tileElements[p.pos];
+    // 稍微偏移防止重叠
+    const offset = pIdx === 0 ? -15 : 15;
+    p.piece.style.left = (coords.x + offset - 18) + 'px';
+    p.piece.style.top = (coords.y - 18) + 'px';
+  }
+
+  // 3. 游戏流程
+  async function handleRoll() {
     const btn = document.getElementById('rollBtn');
     btn.disabled = true;
+    
     const steps = Math.floor(Math.random() * 6) + 1;
-    const faces = ['⚀','⚁','⚂','⚃','⚄','⚅'];
-    document.getElementById('dice').textContent = faces[steps-1];
+    const icons = ['⚀','⚁','⚂','⚃','⚄','⚅'];
+    document.getElementById('dice').innerText = icons[steps-1];
 
     const p = players[turn];
-    let count = 0;
-    const moveInterval = setInterval(() => {
-      p.pos = (p.pos + 1) % 20;
-      updatePlayerPos(turn);
-      count++;
-      if(count >= steps) {
-        clearInterval(moveInterval);
-        checkTile(p);
-      }
-    }, 300);
+    for(let i=0; i<steps; i++) {
+      p.pos = (p.pos + 1) % totalTiles;
+      if(p.pos === 0) { p.money += 200; updateDisplay(); } // 过起点加钱
+      movePiece(turn);
+      await new Promise(r => setTimeout(r, 250));
+    }
+
+    processTile(p);
   }
 
-  function checkTile(p) {
-    const prop = props[p.pos];
-    const owner = players.find(player => player.owned.includes(p.pos));
+  function processTile(p) {
+    const data = propertyData[p.pos];
+    const owner = players.find(pl => pl.owned.includes(p.pos));
 
-    if (prop.type === 'chance') {
-      showPopup("CHANCE!", "You found some money! Gain $100.", [{label:"Great", cb: () => { p.money += 100; finishTurn(); }}]);
+    if(data.type === "tax") {
+      p.money -= data.rent;
+      showModal("Tax Man!", `You paid $${data.rent} in taxes.`, [{text:"Fine...", cb: nextTurn}]);
     } 
-    else if (owner) {
-      if (owner.id === p.id) {
-        if(prop.price > 0) {
-          showPopup("Your Property", "Build a house for $50?", [
-            {label:"Build", cb: () => { 
-              if(p.money >= 50) { 
-                p.money -= 50; 
-                p.houses[p.pos] = (p.houses[p.pos] || 0) + 1;
-                document.getElementById(`h-${p.pos}`).innerText = "🏠".repeat(p.houses[p.pos]);
-              }
-              finishTurn(); 
-            }},
-            {label:"Skip", cb: finishTurn}
-          ]);
-        } else { finishTurn(); }
+    else if(owner) {
+      if(owner.id !== p.id) {
+        p.money -= data.rent;
+        owner.money += data.rent;
+        showModal("Rent Due!", `Pay $${data.rent} rent to ${owner.name}.`, [{text:"Pay", cb: nextTurn}]);
       } else {
-        const rent = prop.rent + (owner.houses[p.pos] || 0) * 30;
-        showPopup("Pay Rent", `Pay $${rent} to ${owner.name}`, [{label:"Pay", cb: () => { 
-          p.money -= rent; owner.money += rent; finishTurn(); 
-        }}]);
+        nextTurn();
       }
     } 
-    else if (prop.price > 0) {
-      showPopup(`Buy ${prop.name}`, `Price: $${prop.price}`, [
-        {label:"Buy", cb: () => {
-          if(p.money >= prop.price) { p.money -= prop.price; p.owned.push(p.pos); }
-          finishTurn();
+    else if(data.price > 0) {
+      showModal(`Buy ${data.name}?`, `Price: $${data.price}`, [
+        {text:"Buy", cb: () => {
+          if(p.money >= data.price) {
+            p.money -= data.price;
+            p.owned.push(p.pos);
+            document.getElementById(`bar-${p.pos}`).style.background = p.color;
+            nextTurn();
+          } else {
+            alert("Not enough money!");
+          }
         }},
-        {label:"Pass", cb: finishTurn}
+        {text:"Pass", cb: nextTurn}
       ]);
     } else {
-      finishTurn();
+      nextTurn();
     }
+    updateDisplay();
   }
 
-  function showPopup(title, text, btns) {
-    document.getElementById('popupTitle').innerText = title;
-    document.getElementById('popupText').innerText = text;
-    const container = document.getElementById('popupBtns');
-    container.innerHTML = '';
+  function showModal(title, text, btns) {
+    document.getElementById('modalTitle').innerText = title;
+    document.getElementById('modalText').innerText = text;
+    const btnContainer = document.getElementById('modalBtns');
+    btnContainer.innerHTML = '';
     btns.forEach(b => {
       const el = document.createElement('button');
-      el.innerText = b.label;
-      el.onclick = () => { document.getElementById('gamePopup').style.display = 'none'; b.cb(); };
-      container.appendChild(el);
+      el.innerText = b.text;
+      el.onclick = () => { document.getElementById('modal').style.display='none'; b.cb(); };
+      btnContainer.appendChild(el);
     });
-    document.getElementById('gamePopup').style.display = 'flex';
+    document.getElementById('modal').style.display = 'flex';
   }
 
-  function finishTurn() {
-    if(players[turn].money < 0) alert(players[turn].name + " is bankrupt!");
+  function nextTurn() {
     turn = (turn + 1) % 2;
-    document.getElementById('status').innerText = `${players[turn].name}'s turn`;
-    document.getElementById('money').innerText = `P1: $${players[0].money} | P2: $${players[1].money}`;
+    updateDisplay();
     document.getElementById('rollBtn').disabled = false;
   }
 
   // 初始化
-  initBoard();
-  updatePlayerPos(0);
-  updatePlayerPos(1);
-  document.getElementById('rollBtn').onclick = rollDice;
+  setupBoard();
+  movePiece(0);
+  movePiece(1);
+  updateDisplay();
+  document.getElementById('rollBtn').onclick = handleRoll;
 
 </script>
 </body>
