@@ -2,62 +2,185 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Visual Monopoly Game</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Monopoly Game</title>
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+      background: #fff8e1;
+    }
+    .board {
+      position: relative;
+      width: 880px;
+      height: 140px;
+      margin: 30px auto;
+      display: flex;
+      background: #ffcc80;
+      border: 3px solid #333;
+      border-radius: 8px;
+    }
+    .tile {
+      width: 80px;
+      height: 100%;
+      border-right: 1px solid #666;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      background: #fff3e0;
+    }
+    .piece {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      font-size: 24px;
+      transition: left 0.7s ease;
+      z-index: 10;
+    }
+    .dice {
+      font-size: 40px;
+      margin: 10px;
+    }
+    .dice.shake {
+      animation: shake 0.5s infinite;
+    }
+    @keyframes shake {
+      0% { transform: rotate(0deg); }
+      25% { transform: rotate(12deg); }
+      50% { transform: rotate(-12deg); }
+      100% { transform: rotate(0deg); }
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      background: #d32f2f;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .popup {
+      display: none;
+      position: fixed;
+      top:0;left:0;width:100%;height:100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 999;
+    }
+    .popup-box {
+      background:white; width:300px; margin:150px auto; padding:20px; border-radius:8px;
+    }
+  </style>
 </head>
 <body>
-  <audio id="bgMusic" loop>
-    <source src="https://assets.mixkit.co/sfx/preview/mixkit-ethereal-fairy-win-sound-2019.mp3" type="audio/mpeg">
-  
-  <audio id="diceSound">
-    <source src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3" type="audio/mpeg">
-  
-  <audio id="buySound">
-    <source src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-retro-game-over-213.mp3" type="audio/mpeg">
-  
-  <audio id="chanceSound">
-    <source src="https://assets.mixkit.co/sfx/preview/mixkit-fairy-arcade-sparkle-866.mp3" type="audio/mpeg">
-  
 
-  <div class="container">
-    <h1>🎲 Fancy Visual Monopoly</h1>
+  <h1>🎲 Monopoly Game</h1>
 
-    <div class="board" id="board">
-      <div class="tile" id="t0">GO</div>
-      <div class="tile" id="t1">Mediterranean<br>$60</div>
-      <div class="tile" id="t2">Baltic<br>$60</div>
-      <div class="tile" id="t3">RR<br>$200</div>
-      <div class="tile" id="t4">Oriental<br>$100</div>
-      <div class="tile" id="t5">Vermont<br>$100</div>
-      <div class="tile" id="t6">CHANCE</div>
-      <div class="tile" id="t7">Connecticut<br>$120</div>
-      <div class="tile" id="t8">St. James<br>$140</div>
-      <div class="tile" id="t9">Virginia<br>$140</div>
-      <div class="tile" id="t10">CHANCE</div>
-      <div class="tile" id="t11">States<br>$160</div>
-      <div class="tile" id="t12">JAIL</div>
-    </div>
+  <div class="board">
+    <div class="tile">GO</div>
+    <div class="tile">Mediterranean<br>$60</div>
+    <div class="tile">Baltic<br>$60</div>
+    <div class="tile">RR<br>$200</div>
+    <div class="tile">Oriental<br>$100</div>
+    <div class="tile">Vermont<br>$100</div>
+    <div class="tile">CHANCE</div>
+    <div class="tile">Connecticut<br>$120</div>
+    <div class="tile">St. James<br>$140</div>
+    <div class="tile">Virginia<br>$140</div>
+    <div class="tile">CHANCE</div>
+    <div class="tile">States<br>$160</div>
+    <div class="tile">JAIL</div>
+  </div>
 
-    <div class="piece" id="p1">🐱</div>
-    <div class="piece" id="p2">🐶</div>
+  <div class="piece" id="p1" style="left:25px; top:50px;">🐱</div>
+  <div class="piece" id="p2" style="left:25px; top:80px;">🐶</div>
 
-    <div class="dice" id="dice">🎲</div>
+  <div class="dice" id="dice">🎲</div>
+  <button id="rollBtn">Roll Dice</button>
+  <p id="status">Player 1's turn</p>
+  <p id="money">P1: $1500 | P2: $1500</p>
 
-    <div class="controls">
-      <button id="rollBtn">Roll Dice</button>
-      <p id="status">Player 1's turn</p>
-      <p id="moneyDisplay">P1: $1500 | P2: $1500</p>
-    </div>
-
-    <div id="chancePopup" class="popup">
-      <div class="popupContent">
-        <h2>🎟️ CHANCE!</h2>
-        <p id="chanceText"></p>
-        <button onclick="closeChance()">OK</button>
-      </div>
+  <div class="popup" id="chancePopup">
+    <div class="popup-box">
+      <h2>Chance!</h2>
+      <p id="chanceText"></p>
+      <button onclick="closePopup()">OK</button>
     </div>
   </div>
 
-  <script src="script.js"></script>
+  <script>
+    const p1 = document.getElementById("p1");
+    const p2 = document.getElementById("p2");
+    const dice = document.getElementById("dice");
+    const rollBtn = document.getElementById("rollBtn");
+    const status = document.getElementById("status");
+    const money = document.getElementById("money");
+    const popup = document.getElementById("chancePopup");
+    const chanceText = document.getElementById("chanceText");
+
+    let players = [
+      { name: "Player 1", money: 1500, pos: 0, elem: p1 },
+      { name: "Player 2", money: 1500, pos: 0, elem: p2 }
+    ];
+    let current = 0;
+    const tileWidth = 80;
+
+    function updateUI() {
+      money.textContent = `P1: $${players[0].money} | P2: $${players[1].money}`;
+      status.textContent = `${players[current].name}'s turn`;
+    }
+
+    function move(player, steps) {
+      player.pos = (player.pos + steps) % 13;
+      player.elem.style.left = `${player.pos * tileWidth + 25}px`;
+    }
+
+    function rollDice() {
+      return Math.floor(Math.random() * 5) + 1;
+    }
+
+    function showChance() {
+      const messages = [
+        "Get $100",
+        "Lose $50",
+        "Move back 1 space",
+        "Get $200",
+        "Roll again!"
+      ];
+      const msg = messages[Math.floor(Math.random() * messages.length)];
+      chanceText.innerText = msg;
+      popup.style.display = "block";
+
+      if (msg.includes("$100")) players[current].money += 100;
+      if (msg.includes("$50")) players[current].money -= 50;
+      if (msg.includes("$200")) players[current].money += 200;
+      if (msg.includes("back")) players[current].pos = Math.max(0, players[current].pos - 1);
+    }
+
+    function closePopup() {
+      popup.style.display = "none";
+    }
+
+    rollBtn.addEventListener("click", () => {
+      dice.classList.add("shake");
+      setTimeout(() => {
+        dice.classList.remove("shake");
+        const steps = rollDice();
+        const player = players[current];
+
+        move(player, steps);
+
+        if (player.pos === 6 || player.pos === 10) {
+          showChance();
+        }
+
+        updateUI();
+        current = current === 0 ? 1 : 0;
+        updateUI();
+      }, 500);
+    });
+
+    updateUI();
+  </script>
 </body>
 </html>
