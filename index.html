@@ -2,49 +2,67 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Monopoly</title>
+  <title>Monopoly Diamond</title>
   <style>
+    * { box-sizing: border-box; margin:0; padding:0; font-family: Arial; }
     body {
-      font-family: Arial;
       background: #fff8e1;
       display: flex;
       flex-direction: column;
       align-items: center;
+      padding: 20px;
+    }
+    h1 {
+      color: #c0392b;
+      margin-bottom: 30px;
     }
     .board {
       position: relative;
-      width: 500px;
-      height: 500px;
-      border: 3px solid #333;
-      background: #ffcc80;
-      margin-top: 30px;
+      width: 520px;
+      height: 520px;
+      transform: rotate(45deg);
+      background: #f9e79f;
+      border: 4px solid #333;
+      border-radius: 8px;
     }
     .tile {
       position: absolute;
-      width: 50px;
-      height: 50px;
+      width: 52px;
+      height: 52px;
       border: 1px solid #666;
-      background: white;
-      font-size: 10px;
+      background: #fff;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
+      font-size: 9px;
       text-align: center;
+      transform: rotate(-45deg);
+      z-index: 1;
+    }
+    .tile.go { background: #abebc6; font-weight: bold; font-size: 12px; }
+    .tile.chance { background: #fadbd8; font-weight: bold; }
+    .tile.jail { background: #d6eaf8; font-weight: bold; }
+    .house {
+      font-size: 14px;
+      margin-top: 2px;
     }
     .piece {
       position: absolute;
-      width: 28px;
-      height: 28px;
-      font-size: 24px;
+      width: 26px;
+      height: 26px;
+      font-size: 22px;
       transition: all 0.7s ease;
       z-index: 10;
+      transform: rotate(-45deg);
     }
     .dice {
-      font-size: 40px;
-      margin: 20px;
+      font-size: 50px;
+      margin: 20px 0;
+      user-select: none;
     }
     .dice.shake {
-      animation: shake 0.5s infinite;
+      animation: shake 0.4s infinite;
     }
     @keyframes shake {
       0% { transform: rotate(0deg); }
@@ -53,9 +71,9 @@
       100% { transform: rotate(0deg); }
     }
     button {
-      padding: 10px 20px;
+      padding: 10px 22px;
       font-size: 16px;
-      background: #d32f2f;
+      background: #c0392b;
       color: white;
       border: none;
       border-radius: 6px;
@@ -64,168 +82,299 @@
     .popup {
       display: none;
       position: fixed;
-      top:0; left:0; width:100%; height:100%;
+      top:0;left:0;width:100%;height:100%;
       background: rgba(0,0,0,0.5);
       z-index: 999;
+      justify-content: center;
+      align-items: center;
     }
     .popup-inner {
       background: white;
-      width: 280px;
-      margin: 150px auto;
-      padding: 20px;
-      border-radius: 8px;
+      padding: 25px;
+      border-radius: 10px;
       text-align: center;
+      width: 320px;
+    }
+    .popup-buttons {
+      display: flex;
+      gap:12px;
+      justify-content: center;
+      margin-top:18px;
     }
   </style>
 </head>
-
 <body>
-  <h1>Monopoly</h1>
 
-  <div class="board" id="board">
-    <div class="tile" style="left:0px; bottom:0px;">GO</div>
-    <div class="tile" style="left:50px; bottom:0px;">A</div>
-    <div class="tile" style="left:100px; bottom:0px;">B</div>
-    <div class="tile" style="left:150px; bottom:0px;">C</div>
-    <div class="tile" style="left:200px; bottom:0px;">D</div>
-    <div class="tile" style="left:250px; bottom:0px;">E</div>
-    <div class="tile" style="left:300px; bottom:0px;">CHANCE</div>
-    <div class="tile" style="left:350px; bottom:0px;">F</div>
-    <div class="tile" style="left:400px; bottom:0px;">G</div>
-    <div class="tile" style="left:450px; bottom:0px;">H</div>
+<h1>🎲 Monopoly - Diamond Board</h1>
 
-    <div class="tile" style="right:0px; bottom:50px;">I</div>
-    <div class="tile" style="right:0px; bottom:100px;">J</div>
-    <div class="tile" style="right:0px; bottom:150px;">K</div>
-    <div class="tile" style="right:0px; bottom:200px;">L</div>
-    <div class="tile" style="right:0px; bottom:250px;">M</div>
-    <div class="tile" style="right:0px; bottom:300px;">N</div>
-    <div class="tile" style="right:0px; bottom:350px;">O</div>
-    <div class="tile" style="right:0px; bottom:400px;">P</div>
-    <div class="tile" style="right:0px; top:0px;">JAIL</div>
+<div class="board" id="board">
+  <div class="tile go"      style="left:234px; bottom:-26px;">GO</div>
+  <div class="tile"         style="left:286px; bottom:26px;">Mediterranean<br>$60</div>
+  <div class="tile"         style="left:338px; bottom:78px;">Baltic<br>$60</div>
+  <div class="tile"         style="left:390px; bottom:130px;">Reading RR<br>$200</div>
+  <div class="tile"         style="left:442px; bottom:182px;">Oriental<br>$100</div>
+  <div class="tile"         style="right:182px; top:442px;">Vermont<br>$100</div>
+  <div class="tile chance"  style="right:130px; top:390px;">CHANCE</div>
+  <div class="tile"         style="right:78px; top:338px;">Connecticut<br>$120</div>
+  <div class="tile"         style="right:26px; top:286px;">St. James<br>$140</div>
+  <div class="tile"         style="right:-26px; top:234px;">Virginia<br>$140</div>
+  <div class="tile"         style="right:234px; top:-26px;">States<br>$160</div>
+  <div class="tile"         style="right:182px; top:26px;">Pennsylvania<br>$180</div>
+  <div class="tile"         style="right:130px; top:78px;">B&O RR<br>$200</div>
+  <div class="tile"         style="right:78px; top:130px;">Kentucky<br>$180</div>
+  <div class="tile"         style="right:26px; top:182px;">Indiana<br>$180</div>
+  <div class="tile jail"    style="left:182px; top:234px;">JAIL</div>
+  <div class="tile"         style="left:130px; top:286px;">Illinois<br>$200</div>
+  <div class="tile"         style="left:78px; top:338px;">Atlantic<br>$220</div>
+  <div class="tile chance"  style="left:26px; top:390px;">CHANCE</div>
+  <div class="tile"         style="left:-26px; top:442px;">Ventnor<br>$220</div>
 
-    <div class="tile" style="right:50px; top:0px;">Q</div>
-    <div class="tile" style="right:100px; top:0px;">R</div>
-    <div class="tile" style="right:150px; top:0px;">S</div>
-    <div class="tile" style="right:200px; top:0px;">T</div>
-    <div class="tile" style="right:250px; top:0px;">U</div>
-    <div class="tile" style="right:300px; top:0px;">CHANCE</div>
-    <div class="tile" style="right:350px; top:0px;">V</div>
-    <div class="tile" style="right:400px; top:0px;">W</div>
-    <div class="tile" style="right:450px; top:0px;">X</div>
+  <div class="piece" id="p1" style="left:240px; bottom:-20px;">🐱</div>
+  <div class="piece" id="p2" style="left:240px; bottom:0px;">🐶</div>
+</div>
 
-    <div class="tile" style="left:0px; top:50px;">Y</div>
-    <div class="tile" style="left:0px; top:100px;">Z</div>
-    <div class="tile" style="left:0px; top:150px;">1</div>
-    <div class="tile" style="left:0px; top:200px;">2</div>
-    <div class="tile" style="left:0px; top:250px;">3</div>
-    <div class="tile" style="left:0px; top:300px;">4</div>
-    <div class="tile" style="left:0px; top:350px;">5</div>
-    <div class="tile" style="left:0px; top:400px;">6</div>
-  </div>
+<div class="dice" id="dice">🎲</div>
+<button id="rollBtn">Roll Dice</button>
+<p id="status">Player 1's turn</p>
+<p id="money">P1: $1500 | P2: $1500</p>
 
-  <div class="piece" id="p1">🐱</div>
-  <div class="piece" id="p2">🐶</div>
-
-  <div class="dice" id="dice">🎲</div>
-  <button id="roll">Roll Dice</button>
-  <p id="status">Player 1 turn</p>
-  <p id="money">P1: 1500 | P2: 1500</p>
-
-  <div class="popup" id="buyPop">
-    <div class="popup-inner">
-      <h3>Buy Property?</h3>
-      <button onclick="buy(true)">YES</button>
-      <button onclick="buy(false)">NO</button>
+<div class="popup" id="buyPopup">
+  <div class="popup-inner">
+    <h3 id="buyTitle"></h3>
+    <p id="buyText"></p>
+    <div class="popup-buttons">
+      <button onclick="buyYes()">Yes</button>
+      <button onclick="closePopup()">No</button>
     </div>
   </div>
+</div>
 
-  <div class="popup" id="chancePop">
-    <div class="popup-inner">
-      <h3>CHANCE</h3>
-      <p id="chanceMsg"></p>
-      <button onclick="closeChance()">OK</button>
+<div class="popup" id="buildPopup">
+  <div class="popup-inner">
+    <h3>Build House</h3>
+    <p id="buildText"></p>
+    <div class="popup-buttons">
+      <button onclick="buildYes()">Build</button>
+      <button onclick="closePopup()">Cancel</button>
     </div>
   </div>
+</div>
 
-  <script>
-    const p1 = document.getElementById("p1");
-    const p2 = document.getElementById("p2");
-    const dice = document.getElementById("dice");
-    const rollBtn = document.getElementById("roll");
-    const status = document.getElementById("status");
-    const money = document.getElementById("money");
+<div class="popup" id="chancePopup">
+  <div class="popup-inner">
+    <h3>Chance!</h3>
+    <p id="chanceText"></p>
+    <button onclick="closePopup()">OK</button>
+  </div>
+</div>
 
-    let player = 0;
-    let pos = [0, 0];
-    let cash = [1500, 1500];
+<script>
+  const p1 = document.getElementById("p1");
+  const p2 = document.getElementById("p2");
+  const dice = document.getElementById("dice");
+  const rollBtn = document.getElementById("rollBtn");
+  const status = document.getElementById("status");
+  const money = document.getElementById("money");
+  const buyPopup = document.getElementById("buyPopup");
+  const buildPopup = document.getElementById("buildPopup");
+  const chancePopup = document.getElementById("chancePopup");
 
-    // 棋子一开始在起点 GO
-    p1.style.left = "10px";
-    p1.style.bottom = "10px";
-    p2.style.left = "30px";
-    p2.style.bottom = "10px";
+  const players = [
+    { name:"Player1", money:1500, pos:0, elem:p1, owned:[], houses:Array(20).fill(0) },
+    { name:"Player2", money:1500, pos:0, elem:p2, owned:[], houses:Array(20).fill(0) }
+  ];
+  let current = 0;
 
-    const positions = [
-      {l:0,b:0},{l:50,b:0},{l:100,b:0},{l:150,b:0},{l:200,b:0},{l:250,b:0},{l:300,b:0},{l:350,b:0},{l:400,b:0},{l:450,b:0},
-      {r:0,b:50},{r:0,b:100},{r:0,b:150},{r:0,b:200},{r:0,b:250},{r:0,b:300},{r:0,b:350},{r:0,b:400},{r:0,t:0},
-      {r:50,t:0},{r:100,t:0},{r:150,t:0},{r:200,t:0},{r:250,t:0},{r:300,t:0},{r:350,t:0},{r:400,t:0},{r:450,t:0},
-      {l:0,t:50},{l:0,t:100},{l:0,t:150},{l:0,t:200},{l:0,t:250},{l:0,t:300},{l:0,t:350},{l:0,t:400}
-    ];
+  const positions = [
+    {left:240, bottom:-20},
+    {left:292, bottom:32}, {left:344, bottom:84}, {left:396, bottom:136}, {left:448, bottom:188},
+    {right:188, top:448}, {right:136, top:396}, {right:84, top:344}, {right:32, top:292}, {right:-20, top:240},
+    {right:240, top:-20}, {right:188, top:32}, {right:136, top:84}, {right:84, top:136}, {right:32, top:188},
+    {left:188, top:240}, {left:136, top:292}, {left:84, top:344}, {left:32, top:396}, {left:-20, top:448}
+  ];
 
-    function update() {
-      money.innerText = `P1: ${cash[0]} | P2: ${cash[1]}`;
-      status.innerText = player == 0 ? "Player 1 turn": "Player 2 turn";
+  const props = [
+    {name:"GO", price:0, rent:0, isChance:false},
+    {name:"Mediterranean", price:60, rent:10, isChance:false},
+    {name:"Baltic", price:60, rent:10, isChance:false},
+    {name:"Reading RR", price:200, rent:25, isChance:false},
+    {name:"Oriental", price:100, rent:15, isChance:false},
+    {name:"Vermont", price:100, rent:15, isChance:false},
+    {name:"Chance", price:0, rent:0, isChance:true},
+    {name:"Connecticut", price:120, rent:20, isChance:false},
+    {name:"St. James", price:140, rent:25, isChance:false},
+    {name:"Virginia", price:140, rent:25, isChance:false},
+    {name:"States", price:160, rent:30, isChance:false},
+    {name:"Pennsylvania", price:180, rent:35, isChance:false},
+    {name:"B&O RR", price:200, rent:25, isChance:false},
+    {name:"Kentucky", price:180, rent:35, isChance:false},
+    {name:"Indiana", price:180, rent:35, isChance:false},
+    {name:"JAIL", price:0, rent:0, isChance:false},
+    {name:"Illinois", price:200, rent:40, isChance:false},
+    {name:"Atlantic", price:220, rent:45, isChance:false},
+    {name:"Chance", price:0, rent:0, isChance:true},
+    {name:"Ventnor", price:220, rent:45, isChance:false}
+  ];
+
+  const chanceList = [
+    "Gain $100", "Lose $50", "Collect $200", "Move back 2", "Roll again", "Pay $50"
+  ];
+
+  const diceFaces = ["⚀","⚁","⚂","⚃","⚄","⚅"];
+
+  function updateUI() {
+    money.textContent = `P1: $${players[0].money} | P2: $${players[1].money}`;
+    status.textContent = `${players[current].name}'s turn`;
+    updateHouses();
+  }
+
+  function updateHouses() {
+    document.querySelectorAll(".house").forEach(e=>e.remove());
+    players.forEach((p, pi)=>{
+      p.owned.forEach(pos=>{
+        const cnt = p.houses[pos];
+        if (cnt <= 0) return;
+        const tile = document.querySelectorAll(".tile")[pos];
+        const h = document.createElement("div");
+        h.className = "house";
+        h.textContent = "🏠".repeat(cnt);
+        tile.appendChild(h);
+      });
+    });
+  }
+
+  function movePiece(p, steps) {
+    p.pos = (p.pos + steps) % 20;
+    const pos = positions[p.pos];
+    const e = p.elem;
+    Object.keys(pos).forEach(k=>e.style[k] = pos[k]+"px");
+  }
+
+  function roll() {
+    return Math.floor(Math.random()*6)+1;
+  }
+
+  function showBuy(prop) {
+    document.getElementById("buyTitle").textContent = `Buy ${prop.name}?`;
+    document.getElementById("buyText").textContent = `Price: $${prop.price}`;
+    buyPopup.style.display = "flex";
+  }
+
+  function showBuild(pos) {
+    const p = players[current];
+    const cnt = p.houses[pos];
+    if (cnt >=5) {
+      alert("Max 5 houses!");
+      nextTurn();
+      return;
     }
+    const cost = 50 + cnt*30;
+    document.getElementById("buildText").textContent = `Cost: $${cost}\nCurrent: ${cnt}/5 houses`;
+    buildPopup.style.display = "flex";
+    window.buildPos = pos;
+  }
 
-    function move() {
-      let p = player == 0 ? p1 : p2;
-      let step = Math.floor(Math.random()*6)+1;
-      pos[player] += step;
-      if (pos[player] >= positions.length) pos[player] = 0;
-      let d = positions[pos[player]];
-      if (d.l !== undefined) p.style.left = d.l + 10 + "px";
-      if (d.r !== undefined) p.style.right = d.r + 10 + "px";
-      if (d.t !== undefined) p.style.top = d.t + 10 + "px";
-      if (d.b !== undefined) p.style.bottom = d.b + 10 + "px";
+  function showChance() {
+    const msg = chanceList[Math.floor(Math.random()*chanceList.length)];
+    document.getElementById("chanceText").textContent = msg;
+    chancePopup.style.display = "flex";
+    const p = players[current];
+    if (msg.includes("Gain $100")) p.money +=100;
+    if (msg.includes("Lose $50") || msg.includes("Pay $50")) p.money -=50;
+    if (msg.includes("Collect $200")) p.money +=200;
+    if (msg.includes("Move back 2")) p.pos = Math.max(0, p.pos-2);
+    if (msg.includes("Roll again")) {
+      setTimeout(()=>{closePopup(); rollBtn.click();}, 700);
+    }
+    updateUI();
+  }
 
-      if (pos[player] == 6 || pos[player] == 25) {
-        chance();
-      } else {
-        player = 1 - player;
-        update();
+  function closePopup() {
+    buyPopup.style.display = "none";
+    buildPopup.style.display = "none";
+    chancePopup.style.display = "none";
+  }
+
+  function buyYes() {
+    const p = players[current];
+    const pos = p.pos;
+    const prop = props[pos];
+    if (p.money >= prop.price) {
+      p.money -= prop.price;
+      p.owned.push(pos);
+    }
+    closePopup();
+    nextTurn();
+  }
+
+  function buildYes() {
+    const p = players[current];
+    const pos = window.buildPos;
+    const cnt = p.houses[pos];
+    const cost = 50 + cnt*30;
+    if (p.money >= cost && cnt <5) {
+      p.money -= cost;
+      p.houses[pos]++;
+    }
+    closePopup();
+    nextTurn();
+  }
+
+  function nextTurn() {
+    if (players[current].money <0) {
+      alert(`${players[current].name} BANKRUPT!`);
+      rollBtn.disabled = true;
+      return;
+    }
+    current = 1 - current;
+    updateUI();
+  }
+
+  rollBtn.addEventListener("click", ()=>{
+    dice.classList.add("shake");
+    setTimeout(()=>{
+      dice.classList.remove("shake");
+      const steps = roll();
+      dice.textContent = diceFaces[steps-1];
+
+      const p = players[current];
+      movePiece(p, steps);
+      const pos = p.pos;
+      const prop = props[pos];
+
+      if (prop.isChance) {
+        showChance();
+        return;
       }
-    }
 
-    function chance() {
-      document.getElementById("chancePop").style.display = "block";
-      document.getElementById("chanceMsg").innerText = "Get $50";
-      cash[player] += 50;
-      update();
-    }
+      if (p.owned.includes(pos)) {
+        showBuild(pos);
+        return;
+      }
 
-    function closeChance() {
-      document.getElementById("chancePop").style.display = "none";
-      player = 1 - player;
-      update();
-    }
+      let owner = -1;
+      if (players[0].owned.includes(pos)) owner=0;
+      if (players[1].owned.includes(pos)) owner=1;
 
-    function buy(ok) {
-      document.getElementById("buyPop").style.display = "none";
-      if (ok) cash[player] -= 50;
-      player = 1 - player;
-      update();
-    }
+      if (owner !== -1 && owner !== current) {
+        const rent = props[pos].rent * (1 + players[owner].houses[pos]*0.8);
+        alert(`Pay rent $${Math.floor(rent)} to ${players[owner].name}`);
+        p.money -= rent;
+        players[owner].money += rent;
+        updateUI();
+        nextTurn();
+        return;
+      }
 
-    rollBtn.onclick = function() {
-      dice.classList.add("shake");
-      setTimeout(() => {
-        dice.classList.remove("shake");
-        move();
-      }, 500);
-    };
+      if (prop.price >0) {
+        showBuy(prop);
+      } else {
+        nextTurn();
+      }
+    }, 500);
+  });
 
-    update();
-  </script>
+  updateUI();
+</script>
 </body>
 </html>
