@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Fancy Monopoly</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; }
+        #game-log { border: 1px solid #ccc; padding: 15px; height: 400px; overflow-y: scroll; margin-bottom: 20px; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+        .player-info { margin: 10px 0; padding: 10px; background: #f0f0f0; }
+    </style>
+</head>
+<body>
+    <h1>🎲 Simple Fancy Monopoly (2 Players)</h1>
+    <div class="player-info">
+        <p>Player 1: $<span id="p1-money">1500</span> | Position: <span id="p1-pos">Go</span></p>
+        <p>Player 2: $<span id="p2-money">1500</span> | Position: <span id="p2-pos">Go</span></p>
+    </div>
+    <div id="game-log"></div>
+    <button id="roll-btn">Roll Dice (Player 1)</button>
+
+    <script src="script.js"></script>
+</body>
+</html>
