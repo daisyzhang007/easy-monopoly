@@ -1,25 +1,63 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Fancy Monopoly</title>
-    <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 20px; }
-        #game-log { border: 1px solid #ccc; padding: 15px; height: 400px; overflow-y: scroll; margin-bottom: 20px; }
-        button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
-        .player-info { margin: 10px 0; padding: 10px; background: #f0f0f0; }
-    </style>
+  <meta charset="UTF-8">
+  <title>Visual Monopoly Game</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>🎲 Simple Fancy Monopoly (2 Players)</h1>
-    <div class="player-info">
-        <p>Player 1: $<span id="p1-money">1500</span> | Position: <span id="p1-pos">Go</span></p>
-        <p>Player 2: $<span id="p2-money">1500</span> | Position: <span id="p2-pos">Go</span></p>
-    </div>
-    <div id="game-log"></div>
-    <button id="roll-btn">Roll Dice (Player 1)</button>
+  <audio id="bgMusic" loop>
+    <source src="https://assets.mixkit.co/sfx/preview/mixkit-ethereal-fairy-win-sound-2019.mp3" type="audio/mpeg">
+  
+  <audio id="diceSound">
+    <source src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-game-jump-coin-216.mp3" type="audio/mpeg">
+  
+  <audio id="buySound">
+    <source src="https://assets.mixkit.co/sfx/preview/mixkit-arcade-retro-game-over-213.mp3" type="audio/mpeg">
+  
+  <audio id="chanceSound">
+    <source src="https://assets.mixkit.co/sfx/preview/mixkit-fairy-arcade-sparkle-866.mp3" type="audio/mpeg">
+  
 
-    <script src="script.js"></script>
+  <div class="container">
+    <h1>🎲 Fancy Visual Monopoly</h1>
+
+    <div class="board" id="board">
+      <div class="tile" id="t0">GO</div>
+      <div class="tile" id="t1">Mediterranean<br>$60</div>
+      <div class="tile" id="t2">Baltic<br>$60</div>
+      <div class="tile" id="t3">RR<br>$200</div>
+      <div class="tile" id="t4">Oriental<br>$100</div>
+      <div class="tile" id="t5">Vermont<br>$100</div>
+      <div class="tile" id="t6">CHANCE</div>
+      <div class="tile" id="t7">Connecticut<br>$120</div>
+      <div class="tile" id="t8">St. James<br>$140</div>
+      <div class="tile" id="t9">Virginia<br>$140</div>
+      <div class="tile" id="t10">CHANCE</div>
+      <div class="tile" id="t11">States<br>$160</div>
+      <div class="tile" id="t12">JAIL</div>
+    </div>
+
+    <div class="piece" id="p1">🐱</div>
+    <div class="piece" id="p2">🐶</div>
+
+    <div class="dice" id="dice">🎲</div>
+
+    <div class="controls">
+      <button id="rollBtn">Roll Dice</button>
+      <p id="status">Player 1's turn</p>
+      <p id="moneyDisplay">P1: $1500 | P2: $1500</p>
+    </div>
+
+    <div id="chancePopup" class="popup">
+      <div class="popupContent">
+        <h2>🎟️ CHANCE!</h2>
+        <p id="chanceText"></p>
+        <button onclick="closeChance()">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
 </body>
 </html>
