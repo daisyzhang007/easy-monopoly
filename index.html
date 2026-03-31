@@ -4,182 +4,482 @@
   <meta charset="UTF-8">
   <title>Monopoly Game</title>
   <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Arial', sans-serif;
+    }
     body {
-      font-family: Arial;
-      text-align: center;
       background: #fff8e1;
-    }
-    .board {
-      position: relative;
-      width: 880px;
-      height: 140px;
-      margin: 30px auto;
       display: flex;
-      background: #ffcc80;
-      border: 3px solid #333;
-      border-radius: 8px;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
     }
+    h1 {
+      color: #d32f2f;
+      margin-bottom: 20px;
+      font-size: 3rem;
+    }
+    /* 正方形棋盘容器 */
+    .board-container {
+      position: relative;
+      width: 600px;
+      height: 600px;
+      border: 4px solid #333;
+      border-radius: 8px;
+      background: #ffe082;
+    }
+    /* 棋盘四条边 */
+    .board-row {
+      position: absolute;
+      display: flex;
+    }
+    /* 底边（从左到右：GO → 第9格） */
+    .bottom-row {
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100px;
+    }
+    /* 右边（从下到上：第10格 → JAIL） */
+    .right-row {
+      right: 0;
+      top: 100px;
+      height: calc(100% - 200px);
+      width: 100px;
+      flex-direction: column;
+    }
+    /* 顶边（从右到左：第19格 → 第10格） */
+    .top-row {
+      top: 0;
+      right: 0;
+      width: 100%;
+      height: 100px;
+      flex-direction: row-reverse;
+    }
+    /* 左边（从上到下：第0格 → 第9格） */
+    .left-row {
+      left: 0;
+      top: 100px;
+      height: calc(100% - 200px);
+      width: 100px;
+      flex-direction: column;
+    }
+    /* 单个格子样式 */
     .tile {
-      width: 80px;
-      height: 100%;
-      border-right: 1px solid #666;
+      width: 100px;
+      height: 100px;
+      border: 1px solid #555;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       font-size: 11px;
       background: #fff3e0;
+      position: relative;
     }
+    .tile.chance {
+      background: #ffebee;
+    }
+    .tile.go {
+      background: #c8e6c9;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+    .tile.jail {
+      background: #cfd8dc;
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+    /* 棋子样式 */
     .piece {
       position: absolute;
-      width: 30px;
-      height: 30px;
-      font-size: 24px;
-      transition: left 0.7s ease;
+      width: 35px;
+      height: 35px;
+      font-size: 28px;
+      transition: all 0.8s ease;
       z-index: 10;
     }
+    /* 骰子样式 */
     .dice {
-      font-size: 40px;
-      margin: 10px;
+      font-size: 50px;
+      margin: 20px 0;
     }
     .dice.shake {
-      animation: shake 0.5s infinite;
+      animation: shake 0.5s linear infinite;
     }
     @keyframes shake {
       0% { transform: rotate(0deg); }
-      25% { transform: rotate(12deg); }
-      50% { transform: rotate(-12deg); }
+      25% { transform: rotate(15deg); }
+      50% { transform: rotate(-15deg); }
       100% { transform: rotate(0deg); }
     }
+    /* 按钮样式 */
     button {
-      padding: 10px 20px;
-      font-size: 16px;
+      padding: 12px 30px;
+      font-size: 1.5rem;
       background: #d32f2f;
       color: white;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
+      margin-bottom: 15px;
     }
+    /* 状态文字 */
+    .status {
+      font-size: 1.5rem;
+      margin: 8px 0;
+    }
+    /* 弹窗样式（买房/机会卡） */
     .popup {
       display: none;
       position: fixed;
-      top:0;left:0;width:100%;height:100%;
-      background: rgba(0,0,0,0.5);
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
       z-index: 999;
+      justify-content: center;
+      align-items: center;
     }
-    .popup-box {
-      background:white; width:300px; margin:150px auto; padding:20px; border-radius:8px;
+    .popup-content {
+      background: white;
+      padding: 30px;
+      border-radius: 10px;
+      text-align: center;
+      width: 350px;
+    }
+    .popup-content h2 {
+      margin-bottom: 15px;
+    }
+    .popup-buttons {
+      margin-top: 20px;
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+    }
+    .popup-buttons button {
+      padding: 8px 20px;
+      font-size: 1rem;
     }
   </style>
 </head>
 <body>
-
   <h1>🎲 Monopoly Game</h1>
 
-  <div class="board">
-    <div class="tile">GO</div>
-    <div class="tile">Mediterranean<br>$60</div>
-    <div class="tile">Baltic<br>$60</div>
-    <div class="tile">RR<br>$200</div>
-    <div class="tile">Oriental<br>$100</div>
-    <div class="tile">Vermont<br>$100</div>
-    <div class="tile">CHANCE</div>
-    <div class="tile">Connecticut<br>$120</div>
-    <div class="tile">St. James<br>$140</div>
-    <div class="tile">Virginia<br>$140</div>
-    <div class="tile">CHANCE</div>
-    <div class="tile">States<br>$160</div>
-    <div class="tile">JAIL</div>
+  <!-- 正方形棋盘 -->
+  <div class="board-container" id="board">
+    <!-- 底边（0-9格） -->
+    <div class="board-row bottom-row">
+      <div class="tile go" data-pos="0">GO</div>
+      <div class="tile" data-pos="1">Mediterranean<br>$60</div>
+      <div class="tile" data-pos="2">Baltic<br>$60</div>
+      <div class="tile" data-pos="3">RR<br>$200</div>
+      <div class="tile" data-pos="4">Oriental<br>$100</div>
+      <div class="tile" data-pos="5">Vermont<br>$100</div>
+      <div class="tile chance" data-pos="6">CHANCE</div>
+      <div class="tile" data-pos="7">Connecticut<br>$120</div>
+      <div class="tile" data-pos="8">St. James<br>$140</div>
+      <div class="tile" data-pos="9">Virginia<br>$140</div>
+    </div>
+    <!-- 右边（10-19格） -->
+    <div class="board-row right-row">
+      <div class="tile chance" data-pos="10">CHANCE</div>
+      <div class="tile" data-pos="11">States<br>$160</div>
+      <div class="tile" data-pos="12">Pennsylvania<br>$180</div>
+      <div class="tile" data-pos="13">RR<br>$200</div>
+      <div class="tile" data-pos="14">Kentucky<br>$180</div>
+      <div class="tile" data-pos="15">Indiana<br>$180</div>
+      <div class="tile" data-pos="16">Illinois<br>$200</div>
+      <div class="tile" data-pos="17">Atlantic<br>$220</div>
+      <div class="tile" data-pos="18">Ventnor<br>$220</div>
+      <div class="tile jail" data-pos="19">JAIL</div>
+    </div>
+    <!-- 顶边（20-29格，从右到左） -->
+    <div class="board-row top-row">
+      <div class="tile" data-pos="29">Marvin Gardens<br>$240</div>
+      <div class="tile" data-pos="28">Pacific<br>$240</div>
+      <div class="tile" data-pos="27">North Carolina<br>$240</div>
+      <div class="tile" data-pos="26">Pennsylvania RR<br>$200</div>
+      <div class="tile" data-pos="25">Short Line<br>$200</div>
+      <div class="tile chance" data-pos="24">CHANCE</div>
+      <div class="tile" data-pos="23">New York<br>$200</div>
+      <div class="tile" data-pos="22">Tennessee<br>$180</div>
+      <div class="tile" data-pos="21">St. Charles<br>$140</div>
+      <div class="tile" data-pos="20">Electric Co.<br>$150</div>
+    </div>
+    <!-- 左边（30-39格，从上到下） -->
+    <div class="board-row left-row">
+      <div class="tile" data-pos="30">Just Visiting</div>
+      <div class="tile" data-pos="31">Chinese<br>$140</div>
+      <div class="tile" data-pos="32">Vermont<br>$100</div>
+      <div class="tile" data-pos="33">Oriental<br>$100</div>
+      <div class="tile" data-pos="34">Reading RR<br>$200</div>
+      <div class="tile" data-pos="35">Baltic<br>$60</div>
+      <div class="tile" data-pos="36">Mediterranean<br>$60</div>
+      <div class="tile chance" data-pos="37">CHANCE</div>
+      <div class="tile" data-pos="38">Community Chest</div>
+      <div class="tile" data-pos="39">Go To Jail</div>
+    </div>
+
+    <!-- 棋子 -->
+    <div class="piece" id="p1" style="left: 32px; top: 465px;">🐱</div>
+    <div class="piece" id="p2" style="left: 32px; top: 505px;">🐶</div>
   </div>
 
-  <div class="piece" id="p1" style="left:25px; top:50px;">🐱</div>
-  <div class="piece" id="p2" style="left:25px; top:80px;">🐶</div>
-
+  <!-- 骰子和控制区 -->
   <div class="dice" id="dice">🎲</div>
   <button id="rollBtn">Roll Dice</button>
-  <p id="status">Player 1's turn</p>
-  <p id="money">P1: $1500 | P2: $1500</p>
+  <p class="status" id="status">Player 1's turn</p>
+  <p class="status" id="money">P1: $1500 | P2: $1500</p>
 
+  <!-- 买房弹窗 -->
+  <div class="popup" id="buyPopup">
+    <div class="popup-content">
+      <h2 id="buyTitle">Buy Property?</h2>
+      <p id="buyPrice"></p>
+      <div class="popup-buttons">
+        <button onclick="confirmBuy(true)">Buy</button>
+        <button onclick="confirmBuy(false)">Skip</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 机会卡弹窗 -->
   <div class="popup" id="chancePopup">
-    <div class="popup-box">
-      <h2>Chance!</h2>
+    <div class="popup-content">
+      <h2>🎟️ Chance!</h2>
       <p id="chanceText"></p>
-      <button onclick="closePopup()">OK</button>
+      <button onclick="closeChance()">OK</button>
     </div>
   </div>
 
   <script>
+    // 游戏数据
     const p1 = document.getElementById("p1");
     const p2 = document.getElementById("p2");
     const dice = document.getElementById("dice");
     const rollBtn = document.getElementById("rollBtn");
     const status = document.getElementById("status");
     const money = document.getElementById("money");
-    const popup = document.getElementById("chancePopup");
+    const buyPopup = document.getElementById("buyPopup");
+    const buyTitle = document.getElementById("buyTitle");
+    const buyPrice = document.getElementById("buyPrice");
+    const chancePopup = document.getElementById("chancePopup");
     const chanceText = document.getElementById("chanceText");
 
-    let players = [
-      { name: "Player 1", money: 1500, pos: 0, elem: p1 },
-      { name: "Player 2", money: 1500, pos: 0, elem: p2 }
+    const players = [
+      { name: "Player 1", money: 1500, pos: 0, elem: p1, owned: [] },
+      { name: "Player 2", money: 1500, pos: 0, elem: p2, owned: [] }
     ];
-    let current = 0;
-    const tileWidth = 80;
+    let currentPlayer = 0;
+    const TOTAL_TILES = 40; // 标准大富翁40格
+    const TILE_SIZE = 100;
 
+    // 地产数据（对应40个格子）
+    const properties = [
+      {name: "GO", price: 0, isChance: false},
+      {name: "Mediterranean Ave", price: 60, isChance: false},
+      {name: "Baltic Ave", price: 60, isChance: false},
+      {name: "Reading RR", price: 200, isChance: false},
+      {name: "Oriental Ave", price: 100, isChance: false},
+      {name: "Vermont Ave", price: 100, isChance: false},
+      {name: "Chance", price: 0, isChance: true},
+      {name: "Connecticut Ave", price: 120, isChance: false},
+      {name: "St. James Place", price: 140, isChance: false},
+      {name: "Virginia Ave", price: 140, isChance: false},
+      {name: "Chance", price: 0, isChance: true},
+      {name: "States Ave", price: 160, isChance: false},
+      {name: "Pennsylvania Ave", price: 180, isChance: false},
+      {name: "B&O RR", price: 200, isChance: false},
+      {name: "Kentucky Ave", price: 180, isChance: false},
+      {name: "Indiana Ave", price: 180, isChance: false},
+      {name: "Illinois Ave", price: 200, isChance: false},
+      {name: "Atlantic Ave", price: 220, isChance: false},
+      {name: "Ventnor Ave", price: 220, isChance: false},
+      {name: "Jail", price: 0, isChance: false},
+      {name: "Marvin Gardens", price: 240, isChance: false},
+      {name: "Pacific Ave", price: 240, isChance: false},
+      {name: "North Carolina Ave", price: 240, isChance: false},
+      {name: "Pennsylvania RR", price: 200, isChance: false},
+      {name: "Short Line RR", price: 200, isChance: false},
+      {name: "Chance", price: 0, isChance: true},
+      {name: "New York Ave", price: 200, isChance: false},
+      {name: "Tennessee Ave", price: 180, isChance: false},
+      {name: "St. Charles Place", price: 140, isChance: false},
+      {name: "Electric Company", price: 150, isChance: false},
+      {name: "Just Visiting", price: 0, isChance: false},
+      {name: "Chinese Ave", price: 140, isChance: false},
+      {name: "Vermont Ave 2", price: 100, isChance: false},
+      {name: "Oriental Ave 2", price: 100, isChance: false},
+      {name: "Reading RR 2", price: 200, isChance: false},
+      {name: "Baltic Ave 2", price: 60, isChance: false},
+      {name: "Mediterranean Ave 2", price: 60, isChance: false},
+      {name: "Chance", price: 0, isChance: true},
+      {name: "Community Chest", price: 0, isChance: false},
+      {name: "Go To Jail", price: 0, isChance: false}
+    ];
+
+    // 机会卡列表
+    const chanceCards = [
+      "Gain $100!",
+      "Lose $50!",
+      "Collect $200 from GO!",
+      "Move back 3 spaces!",
+      "Roll again for free!",
+      "Pay $50 fine!"
+    ];
+
+    // 计算棋子位置（正方形棋盘坐标）
+    function getTilePosition(pos) {
+      let x, y;
+      // 底边（0-9）
+      if (pos >= 0 && pos <= 9) {
+        x = pos * TILE_SIZE + 32;
+        y = 465;
+      }
+      // 右边（10-19）
+      else if (pos >= 10 && pos <= 19) {
+        x = 532;
+        y = (19 - pos) * TILE_SIZE + 132;
+      }
+      // 顶边（20-29，从右到左）
+      else if (pos >= 20 && pos <= 29) {
+        x = (29 - pos) * TILE_SIZE + 32;
+        y = 32;
+      }
+      // 左边（30-39，从上到下）
+      else if (pos >= 30 && pos <= 39) {
+        x = 32;
+        y = (pos - 30) * TILE_SIZE + 132;
+      }
+      return { x, y };
+    }
+
+    // 更新UI
     function updateUI() {
       money.textContent = `P1: $${players[0].money} | P2: $${players[1].money}`;
-      status.textContent = `${players[current].name}'s turn`;
+      status.textContent = `${players[currentPlayer].name}'s turn`;
     }
 
-    function move(player, steps) {
-      player.pos = (player.pos + steps) % 13;
-      player.elem.style.left = `${player.pos * tileWidth + 25}px`;
+    // 移动棋子
+    function movePiece(player, steps) {
+      const oldPos = player.pos;
+      player.pos = (player.pos + steps) % TOTAL_TILES;
+      // 经过GO加钱
+      if (player.pos < oldPos) {
+        player.money += 200;
+        alert("Passed GO! Collected $200!");
+      }
+      // 去监狱
+      if (player.pos === 39) {
+        player.pos = 19;
+        alert("Go to Jail! Move to Jail position!");
+      }
+      const { x, y } = getTilePosition(player.pos);
+      player.elem.style.left = `${x}px`;
+      player.elem.style.top = `${y}px`;
     }
 
+    // 掷骰子
     function rollDice() {
-      return Math.floor(Math.random() * 5) + 1;
+      return Math.floor(Math.random() * 6) + 1;
     }
 
-    function showChance() {
-      const messages = [
-        "Get $100",
-        "Lose $50",
-        "Move back 1 space",
-        "Get $200",
-        "Roll again!"
-      ];
-      const msg = messages[Math.floor(Math.random() * messages.length)];
-      chanceText.innerText = msg;
-      popup.style.display = "block";
-
-      if (msg.includes("$100")) players[current].money += 100;
-      if (msg.includes("$50")) players[current].money -= 50;
-      if (msg.includes("$200")) players[current].money += 200;
-      if (msg.includes("back")) players[current].pos = Math.max(0, players[current].pos - 1);
+    // 显示买房弹窗
+    function showBuyPopup(prop) {
+      buyTitle.textContent = `Buy ${prop.name}?`;
+      buyPrice.textContent = `Price: $${prop.price}`;
+      buyPopup.style.display = "flex";
+      window.currentBuyProp = prop;
     }
 
-    function closePopup() {
-      popup.style.display = "none";
+    // 确认买房
+    function confirmBuy(isBuy) {
+      buyPopup.style.display = "none";
+      const player = players[currentPlayer];
+      const prop = window.currentBuyProp;
+      if (isBuy && player.money >= prop.price) {
+        player.money -= prop.price;
+        player.owned.push(prop.name);
+        alert(`Bought ${prop.name}!`);
+      }
+      nextTurn();
     }
 
+    // 显示机会卡
+    function showChanceCard() {
+      const card = chanceCards[Math.floor(Math.random() * chanceCards.length)];
+      chanceText.textContent = card;
+      chancePopup.style.display = "flex";
+      const player = players[currentPlayer];
+      if (card.includes("Gain $100")) player.money += 100;
+      if (card.includes("Lose $50") || card.includes("Pay $50")) player.money -= 50;
+      if (card.includes("Collect $200")) player.money += 200;
+      if (card.includes("Move back 3")) player.pos = Math.max(0, player.pos - 3);
+      if (card.includes("Roll again")) {
+        setTimeout(() => {
+          closeChance();
+          rollBtn.click();
+        }, 1000);
+      }
+      updateUI();
+    }
+
+    // 关闭机会卡
+    function closeChance() {
+      chancePopup.style.display = "none";
+      nextTurn();
+    }
+
+    // 下一个回合
+    function nextTurn() {
+      const player = players[currentPlayer];
+      // 检查破产
+      if (player.money <= 0) {
+        const winner = currentPlayer === 0 ? players[1] : players[0];
+        alert(`${player.name} is BANKRUPT! ${winner.name} WINS!`);
+        rollBtn.disabled = true;
+        return;
+      }
+      // 切换玩家
+      currentPlayer = currentPlayer === 0 ? 1 : 0;
+      updateUI();
+    }
+
+    // 掷骰子点击事件
     rollBtn.addEventListener("click", () => {
       dice.classList.add("shake");
       setTimeout(() => {
         dice.classList.remove("shake");
         const steps = rollDice();
-        const player = players[current];
+        const player = players[currentPlayer];
+        movePiece(player, steps);
+        const prop = properties[player.pos];
 
-        move(player, steps);
-
-        if (player.pos === 6 || player.pos === 10) {
-          showChance();
+        // 处理格子
+        if (prop.isChance) {
+          showChanceCard();
+        } else if (prop.price > 0 && !player.owned.includes(prop.name)) {
+          // 检查是否被对方拥有
+          const other = players[currentPlayer === 0 ? 1 : 0];
+          if (other.owned.includes(prop.name)) {
+            alert(`Pay rent to ${other.name}!`);
+            player.money -= prop.price / 2;
+            other. money += prop.price / 2;
+            updateUI();
+            nextTurn();
+          } else {
+            showBuyPopup(prop);
+          }
+        } else {
+          nextTurn();
         }
-
-        updateUI();
-        current = current === 0 ? 1 : 0;
-        updateUI();
-      }, 500);
+      }, 600);
     });
 
+    // 初始化
     updateUI();
   </script>
 </body>
