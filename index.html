@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Monopoly - Chance Fixed</title>
+  <title>Monopoly - Chance Fixed Final</title>
   <style>
     * { box-sizing: border-box; margin:0; padding:0; font-family: 'Segoe UI', sans-serif; }
     body { background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; }
@@ -15,15 +15,15 @@
     .tile.chance { background: #f1c40f; }
     .tile.jail { background: #e74c3c; color: white; }
     .piece { position: absolute; width: 36px; height: 36px; font-size: 28px; display: flex; align-items: center; justify-content: center; transition: all 0.4s ease-in-out; z-index: 100; pointer-events: none; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
-    .dice-val { font-size: 110px; line-height: 1; color: #2c3e50; margin-bottom: 10px; }
+    .dice-val { font-size: 120px; line-height: 1; color: #2c3e50; margin-bottom: 10px; }
     .money-display { display: flex; gap: 30px; margin-top: 20px; font-size: 22px; font-weight: 900; }
     .p1-ui { color: #3498db; text-align: center; }
     .p2-ui { color: #e74c3c; text-align: center; }
-    .status-text { margin-top: 15px; font-size: 18px; font-weight: bold; height: 24px; }
+    .status-text { margin-top: 15px; font-size: 18px; font-weight: bold; }
     button { background: #2c3e50; color: white; border: none; padding: 15px 45px; font-size: 20px; border-radius: 50px; cursor: pointer; }
     button:disabled { background: #95a5a6; }
-    .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; }
-    .modal-content { background: white; padding: 30px; border-radius: 15px; text-align: center; max-width: 320px; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+    .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
+    .modal-content { background: white; padding: 30px; border-radius: 15px; text-align: center; max-width: 320px; }
     .modal-btns { margin-top: 20px; display: flex; gap: 10px; justify-content: center; }
   </style>
 </head>
@@ -31,7 +31,7 @@
 
   <div class="board" id="board">
     <div class="center-hub">
-      <div class="status-text" id="status">Player 1's Turn</div>
+      <div class="status-text" id="status">P1's Turn</div>
       <div class="dice-val" id="dice">⚀</div>
       <button id="rollBtn">ROLL DICE</button>
       <div class="money-display">
@@ -46,7 +46,7 @@
   <div class="modal" id="modal">
     <div class="modal-content">
       <h2 id="modalTitle"></h2>
-      <p id="modalText" style="margin: 15px 0; font-size: 16px; line-height: 1.4;"></p>
+      <p id="modalText" style="margin: 15px 0; font-size: 18px;"></p>
       <div class="modal-btns" id="modalBtns"></div>
     </div>
   </div>
@@ -54,17 +54,13 @@
 <script>
   const totalTiles = 28;
   const propertyData = [
-    {name:"GO!", price:0, rent:0, type:"go"},
-    {name:"Med. Ave", price:60, rent:10}, {name:"Baltic", price:60, rent:10}, {name:"Chance", price:0, rent:0, type:"chance"},
+    {name:"GO!", type:"go"}, {name:"Med. Ave", price:60, rent:10}, {name:"Baltic", price:60, rent:10}, {name:"CHANCE", type:"chance"},
     {name:"Oriental", price:100, rent:15}, {name:"Vermont", price:100, rent:15}, {name:"Conn. Ave", price:120, rent:20},
-    {name:"JAIL", price:0, rent:0, type:"jail"},
-    {name:"St. James", price:140, rent:25}, {name:"Electric", price:150, rent:30}, {name:"Virginia", price:140, rent:25},
+    {name:"JAIL", type:"jail"}, {name:"St. James", price:140, rent:25}, {name:"Electric", price:150, rent:30}, {name:"Virginia", price:140, rent:25},
     {name:"Penn RR", price:200, rent:25}, {name:"States Ave", price:160, rent:30}, {name:"Virginia", price:160, rent:30},
-    {name:"PARKING", price:0, rent:0},
-    {name:"Kentucky", price:180, rent:35}, {name:"Chance", price:0, rent:0, type:"chance"}, {name:"Indiana", price:180, rent:35},
+    {name:"PARKING", type:"special"}, {name:"Kentucky", price:180, rent:35}, {name:"CHANCE", type:"chance"}, {name:"Indiana", price:180, rent:35},
     {name:"Illinois", price:200, rent:40}, {name:"B&O RR", price:200, rent:25}, {name:"Atlantic", price:220, rent:45},
-    {name:"GO TO JAIL", price:0, rent:0, type:"jail"},
-    {name:"Ventnor", price:220, rent:45}, {name:"Water Co.", price:150, rent:30}, {name:"Marvin", price:240, rent:50},
+    {name:"GO TO JAIL", type:"jail"}, {name:"Ventnor", price:220, rent:45}, {name:"Water Co.", price:150, rent:30}, {name:"Marvin", price:240, rent:50},
     {name:"Short Line", price:200, rent:25}, {name:"Pacific", price:260, rent:55}, {name:"Boardwalk", price:400, rent:100}
   ];
 
@@ -83,7 +79,7 @@
       else if(i <= 13) { x = 0; y = 560 - ((i-7) * 80); }
       else if(i <= 21) { x = (i-14) * 80; y = 0; }
       else { x = 560; y = (i-21) * 80; }
-      tileCoords.push({x: x, y: y});
+      tileCoords.push({x, y});
       const t = document.createElement('div');
       t.className = `tile ${propertyData[i].type || ''}`;
       t.style.left = x + 'px'; t.style.top = y + 'px';
@@ -91,14 +87,6 @@
                      <div class="tile-info">${propertyData[i].name}${propertyData[i].price ? '<br>$'+propertyData[i].price : ''}</div>`;
       board.appendChild(t);
     }
-  }
-
-  function updateUI() {
-    document.getElementById('m1').innerText = players[0].money;
-    document.getElementById('m2').innerText = players[1].money;
-    const st = document.getElementById('status');
-    st.innerText = `${players[turn].name}'s Turn`;
-    st.style.color = players[turn].color;
   }
 
   function placePiece(pIdx) {
@@ -112,35 +100,35 @@
     document.getElementById('rollBtn').disabled = true;
     const steps = Math.floor(Math.random() * 6) + 1;
     document.getElementById('dice').innerText = ['⚀','⚁','⚂','⚃','⚄','⚅'][steps-1];
+    
+    const p = players[turn];
     for(let i=0; i<steps; i++) {
-      players[turn].pos = (players[turn].pos + 1) % totalTiles;
-      if(players[turn].pos === 0) { players[turn].money += 200; updateUI(); }
+      p.pos = (p.pos + 1) % totalTiles;
+      if(p.pos === 0) { p.money += 200; updateUI(); }
       placePiece(turn);
-      await new Promise(r => setTimeout(r, 250));
+      await new Promise(r => setTimeout(r, 200));
     }
-    processTile();
+    checkTileAction();
   }
 
-  function processTile() {
+  function checkTileAction() {
     const p = players[turn];
-    const data = propertyData[p.pos];
+    const tile = propertyData[p.pos];
     const owner = players.find(pl => pl.owned.includes(p.pos));
 
-    if(data.type === "chance") {
-      handleChance(p);
-    } else if(data.type === "jail" && data.name.includes("GO TO")) {
-      p.pos = 7; // 移动到 Jail 格子
-      placePiece(turn);
-      showModal("Busted!", "Go directly to Jail! Do not pass GO.", [{t:"Aw man", c: nextTurn}]);
-    } else if(owner && owner.id !== p.id) {
-      p.money -= data.rent;
-      owner.money += data.rent;
-      showModal("Rent!", `Pay $${data.rent} to ${owner.name}`, [{t:"Pay", c: nextTurn}]);
-    } else if(data.price > 0 && !owner) {
-      showModal(`Buy ${data.name}?`, `Price: $${data.price}`, [
+    if (tile.type === "chance") {
+      triggerChance(p);
+    } else if (tile.name === "GO TO JAIL") {
+      p.pos = 7; placePiece(turn);
+      showModal("Police!", "Go directly to JAIL!", [{t:"Dismissed", c: nextTurn}]);
+    } else if (owner && owner.id !== p.id) {
+      p.money -= tile.rent; owner.money += tile.rent;
+      showModal("Rent!", `Paid $${tile.rent} to ${owner.name}`, [{t:"OK", c: nextTurn}]);
+    } else if (tile.price > 0 && !owner) {
+      showModal(`Buy ${tile.name}?`, `Cost: $${tile.price}`, [
         {t:"Buy", c: () => {
-          if(p.money >= data.price) {
-            p.money -= data.price; p.owned.push(p.pos);
+          if(p.money >= tile.price) {
+            p.money -= tile.price; p.owned.push(p.pos);
             document.getElementById(`bar-${p.pos}`).style.background = p.color;
           }
           nextTurn();
@@ -153,23 +141,23 @@
     updateUI();
   }
 
-  function handleChance(p) {
+  function triggerChance(p) {
     const events = [
-      { t: "Lottery Win!", d: "You won a local lottery! Collect $200.", a: () => { p.money += 200; } },
-      { t: "Speeding Fine", d: "Caught speeding. Pay $100 fine.", a: () => { p.money -= 100; } },
-      { t: "Advance", d: "Move forward 3 spaces.", a: async () => { 
-          for(let i=0; i<3; i++) {
-            p.pos = (p.pos + 1) % totalTiles;
-            if(p.pos === 0) p.money += 200;
-            placePiece(turn);
-            await new Promise(r => setTimeout(r, 250));
-          }
-      }},
-      { t: "Bad Luck", d: "Go back 3 spaces.", a: () => { p.pos = (p.pos - 3 + totalTiles) % totalTiles; placePiece(turn); } },
-      { t: "Inheritance", d: "A distant relative left you some cash! Collect $300.", a: () => { p.money += 300; } }
+      { n: "Tax Refund", m: 200, d: "IRS made a mistake. Get $200!" },
+      { n: "Hospital Fees", m: -150, d: "Unexpected medical bill. Pay $150." },
+      { n: "Advance to GO", m: 0, d: "Move to GO and collect $200.", a: () => { p.pos = 0; p.money += 200; } },
+      { n: "Backtrack", m: 0, d: "Go back 3 spaces.", a: () => { p.pos = (p.pos - 3 + totalTiles) % totalTiles; } },
+      { n: "Bank Dividends", m: 100, d: "Bank pays you dividends of $100." }
     ];
-    const evt = events[Math.floor(Math.random() * events.length)];
-    showModal("CHANCE: " + evt.t, evt.d, [{t:"OK", c: async () => { await evt.a(); updateUI(); nextTurn(); }}]);
+    const ev = events[Math.floor(Math.random() * events.length)];
+    
+    showModal("CHANCE: " + ev.n, ev.d, [{t:"Accept", c: () => {
+      if(ev.m !== 0) p.money += ev.m;
+      if(ev.a) ev.a();
+      placePiece(turn);
+      updateUI();
+      nextTurn();
+    }}]);
   }
 
   function showModal(title, text, btns) {
@@ -180,14 +168,25 @@
     container.innerHTML = '';
     btns.forEach(b => {
       const el = document.createElement('button');
-      el.innerText = b.t; el.style.fontSize = "14px"; el.style.padding = "10px 20px";
-      el.onclick = () => { m.style.display = 'none'; if(b.c) b.c(); };
+      el.innerText = b.t; el.style.fontSize = "14px";
+      el.onclick = () => { m.style.display = 'none'; b.c(); };
       container.appendChild(el);
     });
     m.style.display = 'flex';
   }
 
-  function nextTurn() { turn = (turn + 1) % 2; updateUI(); document.getElementById('rollBtn').disabled = false; }
+  function updateUI() {
+    document.getElementById('m1').innerText = players[0].money;
+    document.getElementById('m2').innerText = players[1].money;
+    document.getElementById('status').innerText = `P${turn+1}'s Turn`;
+    document.getElementById('status').style.color = players[turn].color;
+  }
+
+  function nextTurn() {
+    turn = (turn + 1) % 2;
+    updateUI();
+    document.getElementById('rollBtn').disabled = false;
+  }
 
   initBoard(); placePiece(0); placePiece(1); updateUI();
   document.getElementById('rollBtn').onclick = handleRoll;
