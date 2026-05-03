@@ -2,247 +2,465 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Square Monopoly - Final Debugged</title>
+  <meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+  <title>Monopoly - Final Fixed Edition</title>
   <style>
-    * { box-sizing: border-box; margin:0; padding:0; font-family: 'Segoe UI', Arial, sans-serif; }
-    body { background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
-    
-    .board { position: relative; width: 640px; height: 640px; background: #fff; border: 8px solid #2c3e50; box-shadow: 0 15px 40px rgba(0,0,0,0.4); }
-    
-    .center-hub { 
-      position: absolute; top: 80px; left: 80px; width: 464px; height: 464px; 
-      background: #fdfdfd; display: flex; flex-direction: column; align-items: center; 
-      justify-content: center; border: 2px dashed #ccc; z-index: 5;
+    * { margin:0; padding:0; box-sizing:border-box; font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", system-ui, sans-serif; }
+    body {
+      display:flex; height:100vh; background:#f7f9fc;
+      padding:10px; gap:10px;
+      overflow:auto;
     }
 
-    .tile { 
-      position: absolute; width: 80px; height: 80px; border: 1px solid #bdc3c7; 
-      display: flex; flex-direction: column; background: white; text-align: center; font-weight: bold;
+    .history {
+      width:280px; background:white; border-radius:10px;
+      border:3px solid #222; padding:12px; overflow-y:auto;
     }
-    .owner-bar { height: 18px; width: 100%; border-bottom: 1px solid #bdc3c7; background: #eee; }
-    .tile-info { flex: 1; display: flex; flex-direction: column; justify-content: center; font-size: 10px; padding: 2px; }
-    
-    /* 特殊格颜色 */
-    .tile.go { background: #2ecc71 !important; color: white; }
-    .tile.chance { background: #f1c40f !important; }
-    .tile.jail { background: #e74c3c !important; color: white; }
-
-    .piece { 
-      position: absolute; width: 40px; height: 40px; font-size: 30px; 
-      display: flex; align-items: center; justify-content: center; 
-      transition: all 0.3s ease-out; z-index: 100; pointer-events: none;
-      filter: drop-shadow(0 2px 5px rgba(0,0,0,0.4));
+    .history h3 { font-size:16px; margin-bottom:8px; }
+    .history .item {
+      padding:6px 8px; background:#f1f1f1; border-radius:6px;
+      margin-bottom:6px; font-size:14px;
     }
 
-    .dice-val { font-size: 130px; line-height: 1; color: #2c3e50; margin-bottom: 5px; user-select: none; }
-    .money-display { display: flex; gap: 40px; margin-top: 15px; font-size: 24px; font-weight: 900; }
-    .p1-ui { color: #3498db; } .p2-ui { color: #e74c3c; }
-    
-    button { 
-      background: #2c3e50; color: white; border: none; padding: 15px 50px; 
-      font-size: 22px; border-radius: 50px; cursor: pointer; box-shadow: 0 4px 0 #1a252f;
+    #canvas-container {
+      flex:1; display:flex; justify-content:center; align-items:center;
+      position:relative; min-width:0;
     }
-    button:active { transform: translateY(2px); box-shadow: 0 2px 0 #1a252f; }
-    button:disabled { background: #95a5a6; box-shadow: none; cursor: not-allowed; }
+    #canvas-container canvas {
+      display:block;
+    }
 
-    .modal { 
-      display: none; position: fixed; top:0; left:0; width:100%; height:100%; 
-      background: rgba(0,0,0,0.85); z-index: 2000; justify-content: center; align-items: center; 
+    .right-menu {
+      width:280px; display:flex; flex-direction:column; gap:8px;
     }
-    .modal-content { background: white; padding: 40px; border-radius: 20px; text-align: center; max-width: 350px; }
-    .modal-btns { margin-top: 25px; }
+    .menu-btn {
+      padding:14px; font-size:16px; border:none;
+      border-radius:8px; background:#3498db; color:white;
+      cursor:pointer;
+    }
+    .panel {
+      flex:1; background:white; border-radius:10px;
+      border:3px solid #222; padding:12px;
+      display:none; overflow-y:auto;
+    }
+    .panel.active { display:block; }
+    .panel h3 { margin-bottom:10px; }
+    .panel p { margin:6px 0; line-height:1.5; font-size:14px; }
+    .rank-list { display:flex; flex-direction:column; gap:8px; }
+    .rank-item {
+      display:grid; grid-template-columns:34px 1fr auto; align-items:center;
+      gap:8px; padding:10px; border-radius:8px; background:#f4f7fb;
+      border:1px solid #dce4ef; font-size:14px;
+    }
+    .rank-item.current { border-color:#3498db; background:#edf6ff; }
+    .rank-medal { font-weight:700; }
+    .rank-money { font-weight:700; color:#218c54; }
+    .online-box { display:flex; flex-direction:column; gap:8px; }
+    .online-status {
+      padding:10px; border-radius:8px; background:#f4f7fb;
+      border:1px solid #dce4ef; font-size:14px; line-height:1.45;
+    }
+    .online-row { display:flex; gap:6px; }
+    .online-row input {
+      flex:1; min-width:0; padding:8px; border:1px solid #ddd; border-radius:6px;
+    }
+    .small-btn {
+      padding:9px 10px; border:none; border-radius:6px;
+      background:#2ecc71; color:white; cursor:pointer; font-size:14px;
+    }
+    .small-btn.secondary { background:#34495e; }
+    .small-btn.warn { background:#e67e22; }
+
+    .chat-box { height:100%; display:flex; flex-direction:column; }
+    .chat-messages {
+      flex:1; background:#f9f9f9; border-radius:6px; padding:8px;
+      margin-bottom:8px; overflow-y:auto;
+    }
+    .chat-messages .msg {
+      padding:6px 10px; border-radius:6px; margin-bottom:6px;
+      max-width:85%; font-size:14px;
+    }
+    .chat-messages .bot { background:#eef; }
+    .chat-messages .user { background:#dff; margin-left:auto; }
+    .chat-input { display:flex; gap:6px; }
+    .chat-input input {
+      flex:1; padding:8px; border:1px solid #ddd; border-radius:6px;
+    }
+    .chat-input button {
+      padding:8px 12px; background:#2ecc71; color:white;
+      border:none; border-radius:6px; cursor:pointer;
+    }
+
+    .modal {
+      position:fixed; top:0; left:0; width:100%; height:100%;
+      background:rgba(0,0,0,0.6); display:none; z-index:999;
+      justify-content:center; align-items:center;
+    }
+    .modal .box {
+      background:white; padding:20px; border-radius:12px;
+      width:90%; max-width:440px; text-align:center;
+    }
+    .modal .box h2 { font-size:20px; margin-bottom:12px; }
+    .modal .box p { font-size:15px; margin-bottom:12px; }
+    .modal .box .btn {
+      padding:10px 20px; margin:6px;
+      background:#333; color:white;
+      border:none; border-radius:6px; cursor:pointer;
+    }
+
+    .emoji-picker {
+      display:flex; gap:4px; flex-wrap:wrap; justify-content:center;
+      margin:8px 0; 
+      max-height:160px;
+      overflow-y:auto;
+      padding:6px;
+      border:1px solid #ddd; border-radius:6px;
+    }
+    .emoji {
+      width:36px; height:36px; font-size:20px;
+      border:2px solid #ddd; border-radius:4px;
+      display:flex; align-items:center; justify-content:center;
+      cursor:pointer;
+      font-family:"Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+      line-height:1;
+    }
+    .emoji.selected { border-color:#3498db; background:#eef; }
+
+    #tileInfoModal .info-line {
+      text-align:left; font-size:15px; margin:8px 0;
+    }
   </style>
 </head>
 <body>
 
-  <div class="board" id="board">
-    <div class="center-hub">
-      <div id="status" style="font-size: 20px; font-weight: bold; margin-bottom: 5px;">P1's Turn</div>
-      <div class="dice-val" id="dice">⚀</div>
-      <button id="rollBtn">ROLL DICE</button>
-      <div class="money-display">
-        <div class="p1-ui">🐱 $<span id="m1">2000</span></div>
-        <div class="p2-ui">🐶 $<span id="m2">2000</span></div>
+  <div class="history">
+    <h3>📜 Game Log</h3>
+    <div id="historyList"></div>
+  </div>
+
+  <div id="canvas-container"></div>
+
+  <div class="right-menu">
+    <button class="menu-btn" onclick="showPanel('rulePanel')">📖 Rules</button>
+    <button class="menu-btn" onclick="showPanel('aiPanel')">🤖 AI Assistant</button>
+    <button class="menu-btn" onclick="showPanel('rankPanel')">🏆 Player Rankings</button>
+    <button class="menu-btn" onclick="showPanel('onlinePanel')">🌐 Online Lobby</button>
+
+    <div class="panel" id="rulePanel">
+      <h3>Game Rules</h3>
+      <p>• Supports 2-4 players. Starting cash: $2000</p>
+      <p>• On your turn, click the center dice button</p>
+      <p>• Pass GO to collect $200</p>
+      <p>• Buy unowned properties; other players pay rent when they land there</p>
+      <p>• Land on your own property again to build houses, up to 4</p>
+      <p>• Go to Jail or land on Jail to skip your next turn</p>
+      <p>• The Lucky Fund tile pays out the shared bonus pool</p>
+      <p>• Each house greatly increases rent</p>
+      <p>• Bankruptcy removes a player; the last player wins</p>
+    </div>
+
+    <div class="panel" id="aiPanel">
+      <div class="chat-box">
+        <div class="chat-messages" id="chatMessages">
+          <div class="msg bot">Hi! I am your Monopoly assistant 😊</div>
+        </div>
+        <div class="chat-input">
+          <input id="chatInput" placeholder="Ask a question...">
+          <button onclick="sendChat()">Send</button>
+        </div>
       </div>
     </div>
-    
-    <div class="piece" id="p1-piece" style="transition: all 0.4s;">🐱</div>
-    <div class="piece" id="p2-piece" style="transition: all 0.4s;">🐶</div>
-  </div>
 
-  <div class="modal" id="modal">
-    <div class="modal-content">
-      <h2 id="modalTitle" style="color:#2c3e50"></h2>
-      <p id="modalText" style="margin: 20px 0; font-size: 18px; color:#34495e"></p>
-      <div class="modal-btns" id="modalBtns"></div>
+    <div class="panel" id="rankPanel">
+      <h3>Player Cash Rankings</h3>
+      <div class="rank-list" id="rankList">
+        <p>Rankings appear after the game starts.</p>
+      </div>
+    </div>
+
+    <div class="panel" id="onlinePanel">
+      <h3>Online Lobby</h3>
+      <div class="online-box">
+        <div class="online-status" id="onlineStatus">Firebase is configured. Sign in with Google to use online rooms and cloud saves.</div>
+        <button class="small-btn" onclick="loginWithGoogle()">Sign in with Google</button>
+        <button class="small-btn secondary" onclick="logoutGoogle()">Sign Out</button>
+        <button class="small-btn" onclick="createOnlineRoom()">Create Room</button>
+        <div class="online-row">
+          <input id="roomInput" placeholder="Enter room code">
+          <button class="small-btn warn" onclick="joinOnlineRoom()">Join</button>
+        </div>
+        <button class="small-btn secondary" onclick="saveCurrentRecord()">Save Current Record</button>
+      </div>
     </div>
   </div>
 
-<script>
-  const totalTiles = 28;
-  const propertyData = [
-    {name:"GO!", type:"go"}, // 0
-    {name:"Med. Ave", price:60, rent:10}, {name:"Baltic", price:60, rent:10}, {name:"CHANCE", type:"chance"},
-    {name:"Oriental", price:100, rent:15}, {name:"Vermont", price:100, rent:15}, {name:"Conn. Ave", price:120, rent:20},
-    {name:"JAIL", type:"jail"}, // 7
-    {name:"St. James", price:140, rent:25}, {name:"Electric", price:150, rent:30}, {name:"Virginia", price:140, rent:25},
-    {name:"Penn RR", price:200, rent:25}, {name:"States Ave", price:160, rent:30}, {name:"Virginia", price:160, rent:30},
-    {name:"PARKING", type:"special"}, // 14
-    {name:"Kentucky", price:180, rent:35}, {name:"CHANCE", type:"chance"}, {name:"Indiana", price:180, rent:35},
-    {name:"Illinois", price:200, rent:40}, {name:"B&O RR", price:200, rent:25}, {name:"Atlantic", price:220, rent:45},
-    {name:"GO TO JAIL", type:"jail"}, // 21
-    {name:"Ventnor", price:220, rent:45}, {name:"Water Co.", price:150, rent:30}, {name:"Marvin", price:240, rent:50},
-    {name:"Short Line", price:200, rent:25}, {name:"Pacific", price:260, rent:55}, {name:"Boardwalk", price:400, rent:100}
-  ];
+  <div class="modal" id="setupModal">
+    <div class="box">
+      <h2>🎮 Game Setup</h2>
+      <div>
+        <label>Players:</label>
+        <select id="playerCount" onchange="renderEmojiSelect()">
+          <option value="2">2 Players</option>
+          <option value="3">3 Players</option>
+          <option value="4">4 Players</option>
+        </select>
+      </div>
+      <div id="emojiArea"></div>
+      <button class="btn" onclick="startGame()">Start Game</button>
+    </div>
+  </div>
 
-  const players = [
-    {id:0, name:"Player 1", money:2000, pos:0, piece:document.getElementById('p1-piece'), color:"#3498db", owned:[]},
-    {id:1, name:"Player 2", money:2000, pos:0, piece:document.getElementById('p2-piece'), color:"#e74c3c", owned:[]}
-  ];
-  let turn = 0;
-  const tileCoords = [];
+  <div class="modal" id="gameModal">
+    <div class="box">
+      <h2 id="modalTitle"></h2>
+      <p id="modalText"></p>
+      <div id="modalBtns"></div>
+    </div>
+  </div>
 
-  // 初始化棋盘
-  function initBoard() {
-    const board = document.getElementById('board');
-    for(let i=0; i<totalTiles; i++) {
-      let x, y;
-      if(i <= 7) { x = 560 - (i * 80); y = 560; }
-      else if(i <= 13) { x = 0; y = 560 - ((i-7) * 80); }
-      else if(i <= 21) { x = (i-14) * 80; y = 0; }
-      else { x = 560; y = (i-21) * 80; }
-      
-      tileCoords.push({x, y});
-      const t = document.createElement('div');
-      t.className = `tile ${propertyData[i].type || ''}`;
-      t.style.left = x + 'px'; t.style.top = y + 'px';
-      t.innerHTML = `<div class="owner-bar" id="bar-${i}"></div>
-                     <div class="tile-info">${propertyData[i].name}${propertyData[i].price ? '<br>$'+propertyData[i].price : ''}</div>`;
-      board.appendChild(t);
-    }
-  }
+  <div class="modal" id="tileInfoModal">
+    <div class="box">
+      <h2 id="tileName"></h2>
+      <div id="tileInfo"></div>
+      <button class="btn" onclick="closeTileInfo()">Close</button>
+    </div>
+  </div>
 
-  function updatePiece(pIdx) {
-    const p = players[pIdx];
-    const offset = pIdx === 0 ? 5 : 35;
-    p.piece.style.left = (tileCoords[p.pos].x + offset) + 'px';
-    p.piece.style.top = (tileCoords[p.pos].y + 20) + 'px';
-  }
+  <script src="firebase-app-compat.js"></script>
+  <script src="firebase-auth-compat.js"></script>
+  <script src="firebase-database-compat.js"></script>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCRqXhhOSnqQ2bPM_Ip4ok_QkOqVt4qXNw",
+      authDomain: "monopoly-game-6efd8.firebaseapp.com",
+      databaseURL: "https://monopoly-game-6efd8-default-rtdb.firebaseio.com",
+      projectId: "monopoly-game-6efd8",
+      storageBucket: "monopoly-game-6efd8.firebasestorage.app",
+      messagingSenderId: "546597362229",
+      appId: "1:546597362229:web:d1d5d585845f74198def7c",
+      measurementId: "G-H4NCKFHQRK"
+    };
+    let onlineUser = null;
+    let onlineDb = null;
+    let onlineRoomId = "";
+    let applyingRemoteState = false;
+    let onlineReady = false;
 
-  // 掷骰子
-  async function handleRoll() {
-    const btn = document.getElementById('rollBtn');
-    btn.disabled = true;
-    
-    const steps = Math.floor(Math.random() * 6) + 1;
-    document.getElementById('dice').innerText = ['⚀','⚁','⚂','⚃','⚄','⚅'][steps-1];
-    
-    const p = players[turn];
-    for(let i=0; i<steps; i++) {
-      p.pos = (p.pos + 1) % totalTiles;
-      if(p.pos === 0) { p.money += 200; updateUI(); }
-      updatePiece(turn);
-      await new Promise(r => setTimeout(r, 250));
-    }
-    
-    // 关键：在这里停住，进入格子逻辑判断
-    resolveTileAction();
-  }
-
-  function resolveTileAction() {
-    const p = players[turn];
-    const tile = propertyData[p.pos];
-    const owner = players.find(pl => pl.owned.includes(p.pos));
-
-    console.log("Stopped at:", tile.name, "Type:", tile.type); // Debug
-
-    // 1. Chance 逻辑
-    if (tile.type === "chance") {
-      const events = [
-        { title: "Lottery!", text: "You won a minor lottery! Get $200", action: () => { p.money += 200; } },
-        { title: "Tax Bill", text: "Pay unexpected tax of $150", action: () => { p.money -= 150; } },
-        { title: "Bonus", text: "Inherit $300 from a relative!", action: () => { p.money += 300; } },
-        { title: "Speeding", text: "Traffic fine! Pay $100", action: () => { p.money -= 100; } }
-      ];
-      const ev = events[Math.floor(Math.random() * events.length)];
-      showModal("CHANCE: " + ev.title, ev.text, [{t: "Collect/Pay", c: () => { ev.action(); updateUI(); nextTurn(); }}]);
-      return; // 阻止自动进入下一回合
+    function hasFirebaseConfig(){
+      return firebaseConfig.apiKey && firebaseConfig.authDomain && firebaseConfig.databaseURL && firebaseConfig.projectId && firebaseConfig.appId;
     }
 
-    // 2. Go to Jail 逻辑
-    if (tile.name === "GO TO JAIL") {
-      showModal("ARRESTED!", "Go directly to JAIL! (Index 7)", [{t: "Fine...", c: () => { 
-        p.pos = 7; 
-        updatePiece(turn); 
-        nextTurn(); 
-      }}]);
-      return;
+    function initFirebase(){
+      if(!window.firebase || !hasFirebaseConfig()){
+        updateOnlineStatus("Firebase is not configured. Add your project settings to firebaseConfig in index.html.");
+        return false;
+      }
+      if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+      onlineDb = firebase.database();
+      onlineReady = true;
+      firebase.auth().onAuthStateChanged(user=>{
+        onlineUser = user;
+        updateOnlineStatus(user ? `Signed in: ${user.displayName || user.email}` : "Not signed in.");
+      });
+      return true;
     }
 
-    // 3. 租金与购买逻辑
-    if (owner && owner.id !== p.id) {
-      showModal("RENT DUE!", `Pay $${tile.rent} to ${owner.name}`, [{t: "Pay Rent", c: () => { 
-        p.money -= tile.rent; 
-        owner.money += tile.rent; 
-        updateUI(); 
-        nextTurn(); 
-      }}]);
-    } else if (tile.price > 0 && !owner) {
-      showModal(`BUY ${tile.name}?`, `Price: $${tile.price}`, [
-        {t: "Buy", c: () => {
-          if(p.money >= tile.price) {
-            p.money -= tile.price; 
-            p.owned.push(p.pos);
-            document.getElementById(`bar-${p.pos}`).style.background = p.color;
-            updateUI();
-          }
-          nextTurn();
-        }},
-        {t: "Skip", c: nextTurn}
-      ]);
-    } else {
-      // 安全格或自己地
-      nextTurn();
+    function updateOnlineStatus(text){
+      const el = document.getElementById("onlineStatus");
+      if(!el) return;
+      const roomText = onlineRoomId ? `<br>Room code: ${onlineRoomId}` : "";
+      el.innerHTML = `${text}${roomText}`;
     }
-  }
 
-  function showModal(title, text, btns) {
-    const m = document.getElementById('modal');
-    document.getElementById('modalTitle').innerText = title;
-    document.getElementById('modalText').innerText = text;
-    const container = document.getElementById('modalBtns');
-    container.innerHTML = '';
-    
-    btns.forEach(b => {
-      const el = document.createElement('button');
-      el.innerText = b.t;
-      el.style.margin = "0 10px";
-      el.style.fontSize = "16px";
-      el.onclick = () => { m.style.display = 'none'; b.c(); };
-      container.appendChild(el);
+    function loginWithGoogle(){
+      if(!onlineReady && !initFirebase()) return;
+      const provider = new firebase.auth.GoogleAuthProvider();
+      firebase.auth().signInWithPopup(provider).catch(err=>updateOnlineStatus(`Sign-in failed: ${err.message}`));
+    }
+
+    function logoutGoogle(){
+      if(!onlineReady) return;
+      firebase.auth().signOut();
+    }
+
+    function createOnlineRoom(){
+      if(!onlineReady && !initFirebase()) return;
+      if(!onlineUser){ updateOnlineStatus("Please sign in with Google first."); return; }
+      onlineRoomId = Math.random().toString(36).slice(2,8).toUpperCase();
+      listenOnlineRoom();
+      syncOnlineState();
+      updateOnlineStatus("Room created. Share the room code with your friends.");
+    }
+
+    function joinOnlineRoom(){
+      if(!onlineReady && !initFirebase()) return;
+      if(!onlineUser){ updateOnlineStatus("Please sign in with Google first."); return; }
+      const input = document.getElementById("roomInput");
+      onlineRoomId = (input.value || "").trim().toUpperCase();
+      if(!onlineRoomId){ updateOnlineStatus("Please enter a room code."); return; }
+      listenOnlineRoom();
+      updateOnlineStatus("Joined the room. Waiting for sync.");
+    }
+
+    function listenOnlineRoom(){
+      if(!onlineDb || !onlineRoomId) return;
+      onlineDb.ref(`rooms/${onlineRoomId}/state`).off();
+      onlineDb.ref(`rooms/${onlineRoomId}/state`).on("value",snap=>{
+        const state = snap.val();
+        if(!state || typeof applySerializableGameState !== "function") return;
+        applyingRemoteState = true;
+        applySerializableGameState(state);
+        applyingRemoteState = false;
+      });
+    }
+
+    function syncOnlineState(){
+      if(applyingRemoteState || !onlineDb || !onlineRoomId || typeof getSerializableGameState !== "function") return;
+      onlineDb.ref(`rooms/${onlineRoomId}/state`).set({
+        ...getSerializableGameState(),
+        updatedAt: firebase.database.ServerValue.TIMESTAMP,
+        updatedBy: onlineUser ? onlineUser.uid : "guest"
+      });
+    }
+
+    function saveFinishedGameRecord(record){
+      const data = {
+        ...record,
+        roomId: onlineRoomId || "local",
+        user: onlineUser ? {uid: onlineUser.uid, name: onlineUser.displayName || onlineUser.email} : null,
+        savedAt: new Date().toISOString()
+      };
+      const localRecords = JSON.parse(localStorage.getItem("monopolyRecords") || "[]");
+      localRecords.push(data);
+      localStorage.setItem("monopolyRecords", JSON.stringify(localRecords));
+      if(onlineDb && onlineUser){
+        return onlineDb.ref(`records/${onlineUser.uid}`).push(data);
+      }
+      return Promise.resolve();
+    }
+
+    function saveCurrentRecord(){
+      if(typeof buildGameRecord !== "function"){ updateOnlineStatus("The game is not ready yet."); return; }
+      saveFinishedGameRecord(buildGameRecord(null, "Manual save")).then(()=>updateOnlineStatus("Current record saved."));
+    }
+
+    window.addEventListener("load", initFirebase);
+  </script>
+  <script src="p5.js"></script>
+  <script src="sketch.js"></script>
+  <script>
+    let panels = ["rulePanel","aiPanel","rankPanel","onlinePanel"];
+    function showPanel(id){
+      const panel = document.getElementById(id);
+      const alreadyOpen = panel.classList.contains("active");
+      panels.forEach(p=>document.getElementById(p).classList.remove("active"));
+      if (!alreadyOpen) {
+        panel.classList.add("active");
+        if (id === "rankPanel" && typeof updateRankingPanel === "function") updateRankingPanel();
+      }
+    }
+
+    function sendChat(){
+      let i = document.getElementById("chatInput");
+      let t = i.value.trim();
+      if(!t) return;
+      addMsg(t,"user");
+      i.value="";
+      setTimeout(()=>{
+        let r = generateAIReply(t);
+        addMsg(r,"bot");
+      },350);
+    }
+    function addMsg(text,role){
+      let m = document.getElementById("chatMessages");
+      let d = document.createElement("div");
+      d.className="msg "+role;
+      d.innerText=text;
+      m.appendChild(d);
+      m.scrollTop=m.scrollHeight;
+    }
+
+    document.getElementById("chatInput").addEventListener("keydown", e=>{
+      if(e.key === "Enter") sendChat();
     });
-    m.style.display = 'flex';
-  }
 
-  function updateUI() {
-    document.getElementById('m1').innerText = players[0].money;
-    document.getElementById('m2').innerText = players[1].money;
-    const st = document.getElementById('status');
-    st.innerText = `P${turn+1}'s Turn`;
-    st.style.color = players[turn].color;
-  }
+    function generateAIReply(question){
+      if(typeof getGameStateForAI !== "function") return "I cannot read the board state yet. Please refresh and try again.";
+      const state = getGameStateForAI();
+      if(state.gameState !== "PLAY" || !state.players.length) return "After the game starts, I can advise based on cash, positions, properties, and houses.";
 
-  function nextTurn() {
-    turn = (turn + 1) % 2;
-    updateUI();
-    document.getElementById('rollBtn').disabled = false;
-  }
+      const q = question.toLowerCase();
+      const me = state.currentPlayer;
+      const tile = state.tiles[me.pos];
+      const ranking = [...state.players].sort((a,b)=>b.money-a.money);
+      const rank = ranking.findIndex(p=>p.id===me.id)+1;
+      const ownedTiles = state.tiles.filter(t=>t.owner===me.id);
+      const buildable = ownedTiles.filter(t=>t.type==="land" && t.houses < state.houseMax);
+      const utilities = ownedTiles.filter(t=>t.type==="utility");
+      const nearestThreats = nextTiles(state, me.pos, 6)
+        .filter(t=>t.owner !== -1 && t.owner !== me.id)
+        .map(t=>`${t.name} rent ${t.rent}`);
+      const buyable = state.tiles
+        .filter(t=>["land","rail","utility"].includes(t.type) && t.owner===-1 && t.price>0 && t.price<=me.money-250)
+        .sort((a,b)=>scoreTile(b)-scoreTile(a));
 
-  initBoard();
-  updatePiece(0);
-  updatePiece(1);
-  updateUI();
-  document.getElementById('rollBtn').onclick = handleRoll;
-</script>
+      if(/rank|ranking|leader|behind|money|cash|funds|balance/.test(q)){
+        const list = ranking.map((p,i)=>`#${i+1} Player ${p.id+1}${p.emoji}: ${p.money}`).join("; ");
+        return `Current turn: Player ${me.id+1}${me.emoji}, cash ${me.money}, rank #${rank}. ${list}`;
+      }
+
+      if(/buy|purchase|property|land|should/.test(q)){
+        if(tile.owner === -1 && ["land","rail","utility"].includes(tile.type)){
+          const reserve = me.money - tile.price;
+          if(reserve >= 350) return `I recommend buying ${tile.name}. You would have ${reserve} left, which is a solid cash buffer. ${tile.type==="utility" ? "Utilities also generate income every turn." : "It can collect rent and may support houses later."}`;
+          if(reserve >= 150) return `You can buy ${tile.name}, but it is risky because you would only have ${reserve} left. Keep cash if high-rent tiles are nearby.`;
+          return `I would not buy ${tile.name} right now. You would only have ${reserve} left, so rent or tax could bankrupt you.`;
+        }
+        if(buyable.length) return `The best available properties are ${buyable.slice(0,3).map(t=>`${t.name}(${t.price})`).join(", ")} . Try to keep at least $250 after buying.`;
+        return "There are no especially strong buys right now. Keep cash and expand after passing risky rent zones.";
+      }
+
+      if(/build|house|upgrade/.test(q)){
+        if(tile.owner===me.id && tile.type==="land" && tile.houses < state.houseMax){
+          const after = me.money - state.buildCost;
+          return after >= 250 ? `I recommend building on ${tile.name}. It costs ${state.buildCost} and leaves you with ${after}. Rent will rise from ${tile.rent}.` : `You can build, but it is risky: you would only have ${after} left. Keep cash unless you are leading or nearby threats are low.`;
+        }
+        if(buildable.length) return `Prioritize building on: ${buildable.slice(0,4).map(t=>`${t.name}(${t.houses}/4)`).join(", ")}. Build first on tiles with higher base rent.`;
+        return "You have no buildable standard properties now. Buy land first or wait to land on your own property.";
+      }
+
+      if(/danger|risk|rent|ahead|next|nearby/.test(q)){
+        if(nearestThreats.length) return `Main risks in the next 6 spaces: ${nearestThreats.join(", ")}. Keep at least ${Math.max(300, nearestThreats.length*120)} cash.`;
+        return "No opponent-owned rent tiles are in the next 6 spaces. You are relatively safe and can consider buying or building.";
+      }
+
+      if(/electric|water|utility|company|income/.test(q)){
+        if(utilities.length) return `You own ${utilities.map(t=>t.name).join(", ")}, generating ${utilities.length * state.utilityIncome} per turn. Utilities provide steady cash and suit a conservative strategy.`;
+        const openUtility = state.tiles.find(t=>t.type==="utility" && t.owner===-1);
+        return openUtility ? `An unowned utility remains: ${openUtility.name}, price ${openUtility.price}. Once owned, it gives the owner +${state.utilityIncome} each turn.` : "All utilities are owned. Landing on another player's utility costs rent.";
+      }
+
+      if(/where|position|current|status|situation|advice|strategy/.test(q)){
+        const threatText = nearestThreats.length ? `Risks ahead: ${nearestThreats.join(", ")}. ` : "The next 6 spaces are fairly safe. ";
+        const action = buildable.length && me.money > 500 ? "Consider building houses to increase rent. " : buyable.length ? `Watch for ${buyable[0].name}. ` : "Prioritize keeping cash. ";
+        return `Player ${me.id+1}${me.emoji} is on ${tile.name}, has ${me.money}, ranks #${rank}, and owns ${ownedTiles.length} assets. ${threatText}${action}`;
+      }
+
+      return `Board read: Player ${me.id+1}${me.emoji} has ${me.money}, is on ${tile.name}, and ranks #${rank}. ${nearestThreats.length ? `Risks ahead: ${nearestThreats.join(", ")}. ` : "The next 6 spaces are fairly safe. "}You can ask me: should I buy, can I build, is danger ahead, or current ranking.`;
+    }
+
+    function nextTiles(state,pos,count){
+      const tiles = [];
+      for(let step=1; step<=count; step++){
+        tiles.push(state.tiles[(pos+step)%state.tiles.length]);
+      }
+      return tiles;
+    }
+
+    function scoreTile(tile){
+      const typeBonus = tile.type==="utility" ? 70 : tile.type==="rail" ? 45 : 0;
+      return (tile.baseRent || 0) * 8 + typeBonus - tile.price * 0.12;
+    }
+  </script>
 </body>
 </html>
